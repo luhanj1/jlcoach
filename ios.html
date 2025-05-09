@@ -7,8 +7,244 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    </head>
-    <body>
+        <link rel="shortcut icon" href="https://i.postimg.cc/MGvCz4R4/IMG-0089.jpg" type="image/x-icon">
 
+
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+
+            .hero-bg {
+                background-color: #1a1a2e;
+            }
+
+            .magenta-text {
+                color: #e0007a;
+            }
+
+            .magenta-bg {
+                background-color: #e0007a;
+            }
+
+            .magenta-border {
+                border-color: #e0007a;
+            }
+
+            .section-title {
+                font-size: 1.875rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            }
+
+            .card {
+                background-color: #2d2d44;
+                border-radius: 0.75rem;
+                padding: 1.5rem;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                transition: transform 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+            .btn {
+                display: inline-block;
+                padding: 0.75rem 1.5rem;
+                border-radius: 0.5rem;
+                font-weight: 600;
+                text-align: center;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-magenta {
+                background-color: #e0007a;
+                color: white;
+            }
+
+            .btn-magenta:hover {
+                background-color: #c7006c;
+            }
+
+            .btn-outline-magenta {
+                background-color: transparent;
+                color: #ffffff;
+                border: 2px solid #e0007a;
+            }
+
+            .btn-outline-magenta:hover {
+                background-color: #e0007a;
+                color: white;
+            }
+
+            nav a {
+                transition: color 0.3s ease;
+            }
+
+            nav a:hover {
+                color: #e0007a;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 0.75rem;
+                border-radius: 0.375rem;
+                border: 1px solid #4a4a6a;
+                background-color: #1a1a2e;
+                color: white;
+                margin-bottom: 1rem;
+            }
+
+            .form-input:focus {
+                outline: none;
+                border-color: #e0007a;
+                box-shadow: 0 0 0 2px rgba(224, 0, 122, 0.5);
+            }
+
+            #mobile-menu {
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .menu-open {
+                transform: translateX(0%);
+            }
+
+            .menu-closed {
+                transform: translateX(-100%);
+            }
+        </style>
+    </head>
+    <body class="bg-[#12121f] text-gray-200 flex flex-col min-h-screen">
+        <header class="bg-[#1a1a2e] shadow-lg sticky top-0 z-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <a href="index.html" class="text-3xl font-bold magenta-text">
+                        JL<span class="text-white">Coach</span>
+                    </a>
+                    <nav class="hidden md:flex space-x-6 lg:space-x-8 items-center"></nav>
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" class="text-gray-300 hover:text-white focus:outline-none">
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="mobile-menu" class="md:hidden fixed inset-0 bg-[#1a1a2e]/95 backdrop-blur-sm z-40 menu-closed p-6 space-y-6">
+                <div class="flex justify-between items-center mb-8">
+                    <a href="index.html" class="text-3xl font-bold magenta-text">
+                        JL<span class="text-white">Coach</span>
+                    </a>
+                    <button id="close-mobile-menu-button" class="text-gray-300 hover:text-white focus:outline-none">
+                    </button>
+                </div>
+            </div>
+        </header>
+        <section id="hero" class="hero-bg py-20 md:py-32 fade-in flex-grow">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+                    Probihá <span class="magenta-text">aktualizace</span> simulátoru
+                </h1>
+                <p class="text-lg sm:text-xl text-gray-300 mb-10 max-w-2xl mx-auto"></p>
+                <div class="space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="index.html" class="btn btn-outline-magenta text-lg">zpět na hlavní stránku</a>
+                </div>
+            </div>
+        </section>
+        <footer class="bg-[#12121f] border-t border-gray-700 py-10 text-center">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <a href="index.html" class="text-2xl font-bold magenta-text mb-4 inline-block">
+                    JL<span class="text-white">Coach</span>
+                </a>
+                <div class="flex justify-center space-x-6 mb-6"></div>
+                <p class="text-gray-500 text-sm">
+                    &copy; <span id="currentYear"></span> Všechna práva vyhrazena.
+                </p>
+                <p class="text-xs text-gray-600 mt-2">
+                    Design by: <a href="mailto:jakub1.luhan@t-mobile.cz" target="_blank" rel="noopener noreferrer" class="hover:underline">Jakub Luhan</a>
+                </p>
+            </div>
+        </footer>
+        <script>
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeMobileMenuButton = document.getElementById('close-mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuLinks = mobileMenu.querySelectorAll('.mobile-menu-link');
+
+            if (mobileMenuButton && closeMobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.remove('menu-closed');
+                    mobileMenu.classList.add('menu-open');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                closeMobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.remove('menu-open');
+                    mobileMenu.classList.add('menu-closed');
+                    document.body.style.overflow = '';
+                });
+
+                mobileMenuLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.remove('menu-open');
+                        mobileMenu.classList.add('menu-closed');
+                        document.body.style.overflow = '';
+                    });
+                });
+            }
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    if (!this.classList.contains('mobile-menu-link')) {
+                        const targetId = this.getAttribute('href');
+                        if (targetId === '#') return;
+
+                        try {
+                            const targetElement = document.querySelector(targetId);
+                            if (targetElement) {
+                                e.preventDefault();
+                                targetElement.scrollIntoView({
+                                    behavior: 'smooth'
+                                });
+                            } else {
+                                console.warn(`Element s ID "${targetId}" pro plynulé skrolování nebyl nalezen.`);
+                            }
+                        } catch (error) {
+                            console.warn(`Neplatný selektor pro plynulé skrolování: "${targetId}"`);
+                        }
+                    }
+                });
+            });
+
+            const animatedElements = document.querySelectorAll('.fade-in');
+            if (typeof IntersectionObserver !== 'undefined') {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = 1;
+                            entry.target.style.transform = 'translateY(0)';
+                        } else {
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                animatedElements.forEach(el => {
+                    el.style.opacity = 0;
+                    el.style.transform = 'translateY(20px)';
+                    el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                    const delay = el.style.animationDelay;
+                    if (delay) {
+                        el.style.transitionDelay = delay;
+                        el.style.animationDelay = '';
+                    }
+                    observer.observe(el);
+                });
+            } else {
+                animatedElements.forEach(el => {
+                    el.style.opacity = 1;
+                    el.style.transform = 'translateY(0)';
+                });
+            }
+        </script>
     </body>
 </html>
