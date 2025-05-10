@@ -666,6 +666,180 @@
             border-radius: 10px;
             text-align: center;
         }
+
+        /* APLIKACE HODINY */
+        .app-header {
+            padding: 12px 16px;
+            color: white;
+        }
+        .app-header h1 { /* Default styling for H1 in app-header */
+            font-size: 34px;
+            font-weight: 700;
+            margin-top: 44px; /* Space for status bar, if H1 is the main title */
+            color: #ffffff;
+        }
+        .app-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            color: #ffffff; /* Default text color for app content */
+            background-color: #000000; /* App background */
+        }
+        .tab-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 83px; /* iOS tab bar height with home indicator area */
+            background-color: #1c1c1e; /* Slightly lighter than screen for depth */
+            border-top: 0.5px solid #38383a; /* Subtle top border */
+            padding-bottom: 34px; /* Space for home indicator */
+        }
+        .tab-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93; /* Inactive tab color */
+            font-size: 10px;
+            flex-grow: 1;
+            padding-top: 6px;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            color: #ff9500; /* Orange for active tab */
+        }
+        .tab-button svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+        /* Common list item styling */
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 0.5px solid #38383a;
+            font-size: 17px;
+            color: #ffffff; /* Ensure default list item text is white */
+        }
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        /* Alarm toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 51px;
+            height: 31px;
+            flex-shrink: 0; /* Prevent toggle from shrinking */
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #39393d; /* Off state */
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 27px;
+            width: 27px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #34c759; /* Green for on state */
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        /* Stopwatch/Timer buttons */
+        .control-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .control-button-start { background-color: rgba(48, 128, 52, 0.3); color: #30d158; } /* Green */
+        .control-button-stop { background-color: rgba(255, 55, 45, 0.3); color: #ff453a; } /* Red */
+        .control-button-lap, .control-button-reset, .control-button-cancel { background-color: #333333; color: white; }
+        .control-button-pause { background-color: rgba(255, 149, 0, 0.4); color: #ff9500; } /* Orange */
+
+        .timer-picker-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .timer-picker-column {
+            width: 70px;
+            height: 100%;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .timer-picker-column::-webkit-scrollbar { display: none; }
+        .timer-picker-item {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #8e8e93;
+            scroll-snap-align: center;
+            scroll-snap-stop: always;
+        }
+        .timer-selection-indicator {
+            position: absolute;
+            top: 50%;
+            left: 10px; right: 10px;
+            transform: translateY(-50%);
+            height: 40px;
+            border-top: 1px solid #555;
+            border-bottom: 1px solid #555;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .timer-picker-item.selected { color: #ffffff; font-weight: 600; }
+
+        .delete-button {
+            background-color: #ff3b30; color: white; border: none; border-radius: 50%;
+            width: 30px; height: 30px; font-size: 20px; line-height: 30px;
+            text-align: center; cursor: pointer; margin-right: 10px; display: none;
+        }
+        .editing .delete-button { display: inline-block; }
+
+        .lap-item {
+            display: flex; justify-content: space-between; padding: 8px 16px;
+            font-size: 17px; color: #ffffff; border-bottom: 0.5px solid #38383a;
+        }
+        .lap-item:last-child { border-bottom: none; }
+        .lap-number { color: #8e8e93; }
+        .text-gray-400 { color: #8e8e93; } /* Custom utility for secondary text */
+        .text-white { color: #ffffff; }
     </style>
 </head>
 <body>
@@ -787,6 +961,27 @@
                 </div>
                 <div class="home-screen-content">
                     <div class="app-grid" id="main-app-grid">
+                        <div id="app-main-content" class="flex-grow flex flex-col">
+                </div>
+            <!-- APLIKACE HODINY -->
+            <div class="tab-bar">
+                <button class="tab-button active" data-tab="world-clock">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zM12 6a1 1 0 00-1 1v4.586l-2.707 2.707 1.414 1.414L12 12.414V7a1 1 0 00-1-1zm5.707.293-3-3a1 1 0 10-1.414 1.414L14.586 7H9.414l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 9h5.172l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414z"/></svg>
+                    <span>Světový čas</span>
+                </button>
+                <button class="tab-button" data-tab="alarms">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/><path d="M13 7h-2v5.414l3.293 3.293 1.414-1.414L13 11.586z"/></svg>
+                    <span>Budíky</span>
+                </button>
+                <button class="tab-button" data-tab="stopwatch">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-5.514 0-10 4.486-10 10s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm1-13h-2v6l5 3 1-1.732-4-2.42V7zM7 1h10v2H7z"/></svg>
+                    <span>Stopky</span>
+                </button>
+                <button class="tab-button" data-tab="timer">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zM6 4h12v2H6V4zm0 16v-9h12v9H6zm7-6.5c0-.276-.224-.5-.5-.5h-3c-.276 0-.5.224-.5.5s.224.5.5.5h3c.276 0 .5-.224.5-.5z"/></svg>
+                    <span>Minutka</span>
+                </button>
+            </div>
                         </div>
                     <div class="dock" id="dock-app-grid">
                         </div>
@@ -1314,6 +1509,446 @@
         showScreen(lockScreen); 
         setInterval(updateDateTime, 1000); 
 
+        // APP Hodiny
+            const appMainContent = document.getElementById('app-main-content');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const statusBarTime = document.getElementById('status-bar-time');
+
+        let alarms = [
+            { id: Date.now() + 1, time: "06:45", label: "I. budík", repeat: "Každý všední den", enabled: true, days: [1,2,3,4,5] },
+            { id: Date.now() + 2, time: "07:00", label: "II. budík", repeat: "Každý den", enabled: true, days: [0,1,2,3,4,5,6] },
+            { id: Date.now() + 3, time: "07:15", label: "III. budík", repeat: "Každý víkend", enabled: true, days: [0,6] }
+        ];
+        let isEditingAlarms = false;
+
+        // Stopwatch state
+        let stopwatchInterval;
+        let stopwatchTime = 0; // in centiseconds
+        let stopwatchRunning = false;
+        let stopwatchLaps = [];
+
+        // Timer state
+        let timerInterval;
+        let timerTotalSeconds = 0;
+        let timerRemainingSeconds = 0;
+        let timerRunning = false;
+        const timerPickers = {};
+
+        function updateStatusBarTime() {
+            const now = new Date();
+            statusBarTime.textContent = now.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateStatusBarTime, 1000);
+        updateStatusBarTime();
+
+
+        function renderWorldClock() {
+            const timezones = [
+                { name: 'Praha', tz: 'Europe/Prague' },
+                { name: 'Las Vegas', tz: 'America/Los_Angeles' },
+                { name: 'Hong Kong', tz: 'Asia/Hong_Kong' },
+                { name: 'Venezuela', tz: 'America/Caracas' },
+                { name: 'Nový Zéland', tz: 'Pacific/Auckland' }
+            ];
+            // Use the .app-header h1 CSS rule for consistent title spacing
+            let content = `<div class="app-header"><h1 class="text-white">Světový čas</h1></div><div class="divide-y divide-gray-700">`;
+            const now = new Date();
+
+            timezones.forEach(city => {
+                const cityTime = new Date(now.toLocaleString('en-US', { timeZone: city.tz }));
+                const pragueTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Prague' }));
+                
+                let dayDiffText = "Dnes";
+                if (cityTime.getDate() > pragueTime.getDate() || (cityTime.getDate() === 1 && pragueTime.getDate() > 25)) {
+                    dayDiffText = "Zítra";
+                } else if (cityTime.getDate() < pragueTime.getDate() || (pragueTime.getDate() === 1 && cityTime.getDate() > 25)) {
+                    dayDiffText = "Včera";
+                }
+                
+                const pragueUTCHours = pragueTime.getUTCHours();
+                const cityUTCHours = cityTime.getUTCHours();
+                let hourDiff = cityUTCHours - pragueUTCHours;
+                if (cityTime.getUTCDate() > pragueTime.getUTCDate()) hourDiff += 24;
+                if (cityTime.getUTCDate() < pragueTime.getUTCDate()) hourDiff -= 24;
+
+                content += `
+                    <div class="list-item">
+                        <div>
+                            <div class="text-sm text-gray-400">${dayDiffText}, ${hourDiff >= 0 ? '+' : ''}${hourDiff} hod.</div>
+                            <div class="text-xl text-white">${city.name}</div>
+                        </div>
+                        <div class="text-3xl font-light text-white">${cityTime.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+            appMainContent.innerHTML = content;
+        }
+
+
+        function renderAlarms() {
+            let headerControls = `
+                <button id="edit-alarms-btn" class="text-orange-500 text-lg">${isEditingAlarms ? 'Hotovo' : 'Upravit'}</button>
+                <h1 class="text-2xl font-semibold text-center flex-grow -ml-10 text-white">Budíky</h1>
+                <button id="add-alarm-btn" class="text-orange-500 text-3xl font-light">+</button>
+            `;
+
+            let listHtml = alarms.map(alarm => `
+                <div class="list-item ${isEditingAlarms ? 'editing' : ''}" data-id="${alarm.id}">
+                    <button class="delete-button" data-id="${alarm.id}">-</button>
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start">
+                            <div class="alarm-text-content ${alarm.enabled ? '' : 'opacity-50'}">
+                                <div class="text-4xl font-light text-white">${alarm.time}</div>
+                                <div class="text-sm">
+                                    <span class="text-white">${alarm.label}</span>, <span class="text-gray-400">${alarm.repeat}</span>
+                                </div>
+                            </div>
+                            <label class="toggle-switch mt-1">
+                                <input type="checkbox" ${alarm.enabled ? 'checked' : ''} data-id="${alarm.id}">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // pt-16 provides top padding for the header controls area, below status bar
+            appMainContent.innerHTML = `
+                <div class="app-header flex justify-between items-center px-4 pt-16"> 
+                    ${headerControls}
+                </div>
+                <div class="divide-y divide-gray-700 mt-4">
+                    ${listHtml}
+                </div>
+            `;
+
+            document.getElementById('edit-alarms-btn').addEventListener('click', toggleEditAlarms);
+            document.getElementById('add-alarm-btn').addEventListener('click', addAlarm);
+            appMainContent.querySelectorAll('.toggle-switch input').forEach(toggle => {
+                toggle.addEventListener('change', (e) => toggleAlarm(e.target.dataset.id, e.target.checked));
+            });
+            appMainContent.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', (e) => deleteAlarm(e.target.dataset.id));
+            });
+        }
+
+        function toggleEditAlarms() {
+            isEditingAlarms = !isEditingAlarms;
+            renderAlarms();
+        }
+
+        function addAlarm() {
+            const newId = Date.now();
+            const newAlarmTime = new Date().toLocaleTimeString('cs-CZ', {hour: '2-digit', minute: '2-digit'});
+            alarms.unshift({ 
+                id: newId, 
+                time: newAlarmTime, 
+                label: "Nový budík", 
+                repeat: "Nikdy", 
+                enabled: true,
+                days: [] 
+            });
+            if (isEditingAlarms) isEditingAlarms = false;
+            renderAlarms();
+        }
+
+        function toggleAlarm(alarmId, isEnabled) {
+            const alarm = alarms.find(a => a.id == alarmId);
+            if (alarm) {
+                alarm.enabled = isEnabled;
+                const textContentDiv = appMainContent.querySelector(`.list-item[data-id="${alarmId}"] .alarm-text-content`);
+                if (textContentDiv) {
+                     textContentDiv.classList.toggle('opacity-50', !isEnabled);
+                }
+            }
+        }
+        
+        function deleteAlarm(alarmId) {
+            alarms = alarms.filter(a => a.id != alarmId);
+            renderAlarms();
+        }
+
+
+        function formatStopwatchTime(timeInCentiseconds) {
+            const cs = timeInCentiseconds % 100;
+            const totalSeconds = Math.floor(timeInCentiseconds / 100);
+            const s = totalSeconds % 60;
+            const m = Math.floor(totalSeconds / 60);
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')},${String(cs).padStart(2, '0')}`;
+        }
+
+        function renderStopwatch() {
+            // pt-16 provides top padding for the content area, below status bar
+            appMainContent.innerHTML = `
+                <div class="app-header text-center pt-16"> </div>
+                <div class="flex flex-col items-center justify-center flex-grow px-4 pb-8">
+                    <div id="stopwatch-display" class="text-7xl font-thin tracking-tighter mb-12 text-white">
+                        ${formatStopwatchTime(stopwatchTime)}
+                    </div>
+                    <div id="stopwatch-laps" class="w-full overflow-y-auto max-h-48 mb-8 divide-y divide-gray-700">
+                        ${renderStopwatchLaps()}
+                    </div>
+                    <div class="flex justify-around w-full">
+                        <button id="stopwatch-lap-reset" class="control-button ${stopwatchRunning ? 'control-button-lap' : 'control-button-reset'}">
+                            ${stopwatchRunning ? 'Mezičas' : (stopwatchTime > 0 ? 'Vynulovat' : 'Mezičas')}
+                        </button>
+                        <button id="stopwatch-start-stop" class="control-button ${stopwatchRunning ? 'control-button-stop' : 'control-button-start'}">
+                            ${stopwatchRunning ? 'Zastavit' : 'Spustit'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('stopwatch-lap-reset').addEventListener('click', handleStopwatchLapReset);
+            document.getElementById('stopwatch-start-stop').addEventListener('click', handleStopwatchStartStop);
+        }
+        
+        function renderStopwatchLaps() {
+            if (stopwatchLaps.length === 0 && !stopwatchRunning && stopwatchTime === 0) return '';
+            let html = '';
+            if (stopwatchRunning && stopwatchLaps.length > 0) {
+                const lastLapTime = stopwatchLaps.reduce((sum, lap) => sum + lap.time, 0); // This was sum + lap.time, should be sum + lap.actualTime for correct current lap display if laps store split times
+                // Correct calculation for current lap time: stopwatchTime - time of the start of this lap (which is sum of all previous laps' actualTime)
+                const sumOfPreviousLapsActualTime = stopwatchLaps.length > 0 ? stopwatchLaps[stopwatchLaps.length-1].actualTime : 0;
+                const currentLapTimeDisplay = stopwatchTime - sumOfPreviousLapsActualTime;
+
+                 html += `<div class="lap-item">
+                            <span class="lap-number">Kolo ${stopwatchLaps.length + 1}</span>
+                            <span class="text-white">${formatStopwatchTime(currentLapTimeDisplay)}</span>
+                          </div>`;
+            } else if (stopwatchRunning && stopwatchLaps.length === 0 && stopwatchTime > 0) {
+                 html += `<div class="lap-item">
+                            <span class="lap-number">Kolo 1</span>
+                            <span class="text-white">${formatStopwatchTime(stopwatchTime)}</span>
+                          </div>`;
+            }
+
+            for (let i = stopwatchLaps.length - 1; i >= 0; i--) {
+                html += `
+                    <div class="lap-item">
+                        <span class="lap-number">Kolo ${stopwatchLaps[i].lapNumber}</span>
+                        <span class="text-white">${formatStopwatchTime(stopwatchLaps[i].time)}</span>
+                    </div>`;
+            }
+            return html;
+        }
+
+        function updateStopwatchDisplay() {
+            if (document.getElementById('stopwatch-display')) {
+                document.getElementById('stopwatch-display').textContent = formatStopwatchTime(stopwatchTime);
+            }
+            if (document.getElementById('stopwatch-laps')) {
+                if (stopwatchRunning) {
+                    document.getElementById('stopwatch-laps').innerHTML = renderStopwatchLaps();
+                }
+            }
+        }
+
+        function handleStopwatchStartStop() {
+            stopwatchRunning = !stopwatchRunning;
+            if (stopwatchRunning) {
+                clearInterval(stopwatchInterval);
+                const startTime = Date.now() - stopwatchTime * 10;
+                stopwatchInterval = setInterval(() => {
+                    stopwatchTime = Math.floor((Date.now() - startTime) / 10);
+                    updateStopwatchDisplay();
+                }, 10);
+            } else {
+                clearInterval(stopwatchInterval);
+            }
+            renderStopwatch(); 
+            updateStopwatchDisplay();
+        }
+
+        function handleStopwatchLapReset() {
+            if (stopwatchRunning) { // Lap
+                const sumOfPreviousLapsActualTime = stopwatchLaps.length > 0 ? stopwatchLaps[stopwatchLaps.length-1].actualTime : 0;
+                const currentLapDuration = stopwatchTime - sumOfPreviousLapsActualTime;
+                stopwatchLaps.push({ lapNumber: stopwatchLaps.length + 1, time: currentLapDuration, actualTime: stopwatchTime });
+                document.getElementById('stopwatch-laps').innerHTML = renderStopwatchLaps();
+            } else { // Reset
+                stopwatchTime = 0;
+                stopwatchLaps = [];
+                stopwatchRunning = false;
+                clearInterval(stopwatchInterval);
+                renderStopwatch(); 
+            }
+            updateStopwatchDisplay();
+        }
+
+
+        function renderTimer() {
+            const hours = Array.from({ length: 24 }, (_, i) => i);
+            const minutesOrSeconds = Array.from({ length: 60 }, (_, i) => i);
+            // pt-16 provides top padding for the content area, below status bar
+            appMainContent.innerHTML = `
+                <div class="app-header text-center pt-16"> </div>
+                <div class="flex flex-col items-center justify-around flex-grow px-4 pb-8">
+                    ${timerRunning || timerRemainingSeconds > 0 ? `
+                        <div id="timer-countdown-display" class="text-7xl font-thin tracking-tighter mb-12 text-white">
+                            ${formatTimerCountdown(timerRemainingSeconds)}
+                        </div>
+                    ` : `
+                        <div class="timer-picker-container my-8">
+                            <div class="timer-selection-indicator"></div>
+                            <div id="timer-hours-picker" class="timer-picker-column">
+                                ${hours.map(h => `<div class="timer-picker-item" data-value="${h}">${String(h).padStart(2, '0')}</div>`).join('')}
+                            </div>
+                            <div class="text-3xl mx-1 self-center pb-1 text-white">:</div>
+                            <div id="timer-minutes-picker" class="timer-picker-column">
+                                ${minutesOrSeconds.map(m => `<div class="timer-picker-item" data-value="${m}">${String(m).padStart(2, '0')}</div>`).join('')}
+                            </div>
+                            <div class="text-3xl mx-1 self-center pb-1 text-white">:</div>
+                            <div id="timer-seconds-picker" class="timer-picker-column">
+                                ${minutesOrSeconds.map(s => `<div class="timer-picker-item" data-value="${s}">${String(s).padStart(2, '0')}</div>`).join('')}
+                            </div>
+                        </div>
+                    `}
+                    <div class="flex justify-around w-full mt-auto" style="transform: translateY(-30px);">
+                        <button id="timer-cancel-btn" class="control-button control-button-cancel ${ (timerRunning || timerRemainingSeconds > 0) ? '' : 'opacity-50 cursor-not-allowed'}" ${ (timerRunning || timerRemainingSeconds > 0) ? '' : 'disabled'}>
+                            Zrušit
+                        </button>
+                        <button id="timer-start-pause-btn" class="control-button ${timerRunning ? 'control-button-pause' : 'control-button-start'}">
+                            ${timerRunning ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8"><path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 01.75-.75H9a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75H7.5a.75.75 0 01-.75-.75V5.25zm7.5 0a.75.75 0 01.75-.75h1.5a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75h-1.5a.75.75 0 01-.75-.75V5.25z" clip-rule="evenodd" /></svg>' : 'Spustit'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            if (!timerRunning && timerRemainingSeconds === 0) {
+                setupTimerPickers();
+            }
+
+            document.getElementById('timer-cancel-btn').addEventListener('click', handleTimerCancel);
+            document.getElementById('timer-start-pause-btn').addEventListener('click', handleTimerStartPause);
+        }
+        
+        function setupTimerPickers() {
+            timerPickers.hours = document.getElementById('timer-hours-picker');
+            timerPickers.minutes = document.getElementById('timer-minutes-picker');
+            timerPickers.seconds = document.getElementById('timer-seconds-picker');
+
+            [timerPickers.hours, timerPickers.minutes, timerPickers.seconds].forEach(picker => {
+                if (picker) {
+                    picker.scrollTop = 0; 
+                    updatePickerSelection(picker); 
+                    picker.addEventListener('scroll', () => updatePickerSelection(picker));
+                }
+            });
+        }
+
+        function updatePickerSelection(pickerElement) {
+            if (!pickerElement) return;
+            const itemHeight = 40; 
+            const selectedIndex = Math.round(pickerElement.scrollTop / itemHeight);
+            
+            pickerElement.querySelectorAll('.timer-picker-item').forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedIndex);
+            });
+        }
+        
+        function getPickerValue(pickerElement) {
+            if (!pickerElement) return 0;
+            const itemHeight = 40;
+            const selectedIndex = Math.round(pickerElement.scrollTop / itemHeight);
+            const selectedItem = pickerElement.children[selectedIndex];
+            return selectedItem ? parseInt(selectedItem.dataset.value) : 0;
+        }
+
+        function formatTimerCountdown(totalSeconds) {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function updateTimerCountdownDisplay() {
+            const display = document.getElementById('timer-countdown-display');
+            if (display) {
+                display.textContent = formatTimerCountdown(timerRemainingSeconds);
+            }
+        }
+
+        function handleTimerStartPause() {
+            if (timerRunning) { 
+                timerRunning = false;
+                clearInterval(timerInterval);
+            } else { 
+                if (timerRemainingSeconds === 0) { 
+                    const hours = getPickerValue(timerPickers.hours);
+                    const minutes = getPickerValue(timerPickers.minutes);
+                    const seconds = getPickerValue(timerPickers.seconds);
+                    timerTotalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+                    if (timerTotalSeconds === 0) return; 
+                    timerRemainingSeconds = timerTotalSeconds;
+                }
+                timerRunning = true;
+                timerInterval = setInterval(() => {
+                    timerRemainingSeconds--;
+                    if (timerRemainingSeconds < 0) {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        timerRemainingSeconds = 0;
+                        // Simple alert, replace with a nicer modal if desired
+                        const alertDiv = document.createElement('div');
+                        alertDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #333; color: white; padding: 20px; border-radius: 10px; z-index: 200; box-shadow: 0 0 15px rgba(0,0,0,0.5); text-align: center;';
+                        alertDiv.innerHTML = 'Minutka dokončena!<br><button id="timer-alert-ok" style="background-color: #ff9500; color: white; padding: 8px 15px; border-radius: 5px; border: none; margin-top: 15px; cursor: pointer;">OK</button>';
+                        document.body.appendChild(alertDiv);
+                        document.getElementById('timer-alert-ok').onclick = () => {
+                            alertDiv.remove();
+                            renderTimer(); // Re-render to show pickers again
+                        };
+                    }
+                    if (document.getElementById('timer-countdown-display')) {
+                        updateTimerCountdownDisplay();
+                    } else { 
+                        renderTimer();
+                        updateTimerCountdownDisplay();
+                    }
+                     if (timerRemainingSeconds <= 0 && !document.querySelector('div[style*="position: fixed"]')) { // Check if alert is not already shown
+                         renderTimer(); 
+                     }
+                }, 1000);
+            }
+            renderTimer(); 
+            if (timerRunning || timerRemainingSeconds > 0) updateTimerCountdownDisplay();
+        }
+
+        function handleTimerCancel() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerTotalSeconds = 0;
+            timerRemainingSeconds = 0;
+            renderTimer();
+        }
+
+
+        function switchTab(tabName) {
+            tabButtons.forEach(button => {
+                button.classList.toggle('active', button.dataset.tab === tabName);
+            });
+
+            isEditingAlarms = false; 
+
+            if (tabName === 'world-clock') {
+                renderWorldClock();
+            } else if (tabName === 'alarms') {
+                renderAlarms();
+            } else if (tabName === 'stopwatch') {
+                renderStopwatch();
+                updateStopwatchDisplay(); 
+            } else if (tabName === 'timer') {
+                renderTimer();
+                 if (timerRunning || timerRemainingSeconds > 0) updateTimerCountdownDisplay();
+            }
+        }
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => switchTab(button.dataset.tab));
+        });
+
+        // Initial tab
+        switchTab('world-clock');
     </script>
 </body>
 </html>
