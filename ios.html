@@ -1,250 +1,823 @@
 <!DOCTYPE html>
 <html lang="cs">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>JLCoach - probíhá aktualizace</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-        <link rel="shortcut icon" href="https://i.postimg.cc/MGvCz4R4/IMG-0089.jpg" type="image/x-icon">
-        <style>
-            body {
-                font-family: 'Inter', sans-serif;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JLCoach - Simulátor Apple iPhone 16</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="https://i.postimg.cc/MGvCz4R4/IMG-0089.jpg" type="image/x-icon">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
 
-            .hero-bg {
-                background-color: #1a1a2e;
-            }
+            box-sizing: border-box;
+        }
 
-            .magenta-text {
-                color: #e0007a;
-            }
+        /* Kontejner pro samotné zařízení iPhone */
+        #iphone-device {
+            width: 360px; /* Šířka rámečku */
+            height: 700.3px; /* Výška rámečku */
+            background-color: #1c1c1e; /* Barva rámečku */
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 0 2px rgba(0,0,0,0.1);
+            border-radius: 50px; /* Zaoblení vnějšího telefonu */
+            overflow: hidden; 
+        }
 
-            .magenta-bg {
-                background-color: #e0007a;
-            }
+        /* Samotná simulovaná obrazovka */
+        #simulated-screen {
+            position: absolute;
+            top: 14px;    
+            left: 14px;   
+            right: 14px;  
+            bottom: 14px; 
+            background-color: #000000; 
+            border-radius: 40px; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-            .magenta-border {
-                border-color: #e0007a;
-            }
+        /* Dynamic Island (výřez obrazovky) */
+        .dynamic-island {
+            position: absolute;
+            top: 18px; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px; 
+            height: 28px;  
+            background-color: #000; 
+            border-radius: 14px; 
+            z-index: 5; 
+        }
 
-            .section-title {
-                font-size: 1.875rem;
-                font-weight: 700;
-                margin-bottom: 1.5rem;
-                text-align: center;
-            }
+        /* Tlačítka na stranách telefonu - Styly dle uživatelského výběru */
+        .iphone-side-button {
+            position: absolute;
+            background-color: #6a6a6a; 
+            cursor: pointer;
+            z-index: 0; 
+            box-shadow: inset 0 0 1px #ffffff1a;
+        }
+        .iphone-side-button:active {
+            background-color: #3a3a3c; 
+        }
+        .volume-button-up {
+            width: 4px; 
+            height: 40px; 
+            left: 0px; 
+            top: 110px; 
+            border-radius: 0 3px 3px 0;
+        }
+        .volume-button-down {
+            width: 4px;
+            height: 40px;
+            left: 0px;
+            top: 165px; 
+            border-radius: 0 3px 3px 0;
+        }
+        .side-button-power {
+            width: 14px;
+            height: 80px; 
+            right: -5px; 
+            top: 115px;
+            border-radius: 3px 0 0 3px;
+        }
 
-            .card {
-                background-color: #2d2d44;
-                border-radius: 0.75rem;
-                padding: 1.5rem;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-                transition: transform 0.3s ease;
-            }
+        .screen-view {
+            width: 100%;
+            height: 100%;
+            display: none; 
+            flex-direction: column; 
+            animation: fadeIn 0.3s ease-in-out;
+            position: relative; 
+            background-color: #fff; /* Výchozí pozadí pro obrazovky aplikací */
+        }
+        .screen-view.active { display: flex; } 
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-            .card:hover {
-                transform: translateY(-5px);
-            }
+        /* Status bar */
+        .status-bar {
+            padding: 18px 20px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 600; 
+            position: absolute; 
+            top: 0; left: 0; right: 0;
+            z-index: 10; 
+            color: #333333;
+        }
+        .status-bar .operator-name, .status-bar .status-bar-time { margin-left: 0; } 
+        .status-bar .icons { display: flex; align-items: center; }
+        .status-bar .icons svg { height: 16px; fill: #333333; }
+        .status-bar .icons .ios-battery-icon { height: 17px; }
+        .status-bar .icons .ios-5g-icon text { font-family: 'Inter', sans-serif; font-weight: 600; }
 
-            .btn {
-                display: inline-block;
-                padding: 0.75rem 1.5rem;
-                border-radius: 0.5rem;
-                font-weight: 600;
-                text-align: center;
-                transition: background-color 0.3s ease;
-            }
+        /* Indikátor hlasitosti */
+        #volume-indicator-overlay {
+            position: absolute;
+            left: 20px; /* Posunuto více doprava od tlačítek */
+            top: 150px; 
+            transform: translateY(-50%); 
+            background-color: rgba(50, 50, 50, 0.85);
+            border-radius: 16px;
+            padding: 8px 6px; 
+            z-index: 30; 
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            pointer-events: none; 
+            width: 32px; 
+            height: 140px; 
+            display: flex;
+            flex-direction: column; 
+            justify-content: flex-end; 
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        #volume-indicator-overlay.visible {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0); 
+        }
+        #volume-indicator-overlay.hidden-animation {
+             transform: translateY(-50%) translateX(-10px); 
+        }
+        #volume-level-bar-container {
+            width: 8px; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.25); 
+            border-radius: 4px; 
+            overflow: hidden;
+            display: flex; 
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        #volume-level-bar {
+            width: 100%; 
+            background-color: #ffffff; 
+            border-radius: 4px; 
+            height: 0%; 
+            transition: height 0.15s linear; 
+        }
 
-            .btn-magenta {
-                background-color: #e0007a;
-                color: white;
-            }
+        /* Zamknutá obrazovka */
+        #lock-screen {
+            background-image: radial-gradient(circle, #e20074, #ffffff);
+            color: #333333;
+        }
+        .lock-screen-content-wrapper { 
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+            padding-top: 55px; 
+            width: 100%;
+        }
+        .lock-screen-top-info {
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%;
+            margin-top: 30px;
+        }
+        .lock-screen-top-info .current-time-large { font-size: 4.5rem; font-weight: 200; margin-bottom: 8px; }
+        .lock-screen-top-info .current-date { font-size: 1.125rem; font-weight: 500; color: #555555; }
 
-            .btn-magenta:hover {
-                background-color: #c7006c;
-            }
+        .lock-screen-bottom-controls { 
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%;
+            margin-top: auto; 
+            padding-bottom: 5px; 
+        }
+        .lock-screen-shortcuts {
+            display: flex; justify-content: space-between;
+            width: 100%; padding: 0 50px 20px; box-sizing: border-box;
+        }
+        .shortcut-button {
+            background-color: rgba(0, 0, 0, 0.12); border-radius: 50%;
+            width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; transition: background-color 0.2s;
+        }
+        .shortcut-button { fill: #333333; width: 50px; height: 50px; display: flex;}
+        .shortcut-button:hover { background-color: rgba(0, 0, 0, 0.2); }
+        .shortcut-button.active { background-color: rgba(255, 255, 255, 0.3); position: relative; z-index: 20; }
+        .shortcut-button.active svg { fill: #000000; }
 
-            .btn-outline-magenta {
-                background-color: transparent;
-                color: #ffffff;
-                border: 2px solid #e0007a;
-            }
+        /* Home indicator - společné styly */
+        .home-indicator-area {
+            padding: 15px 0 8px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            cursor: pointer;
+            width: 100%; 
+            position: relative; 
+            z-index: 20; 
+        }
+        .home-indicator-bar {
+            width: 130px; height: 5px; background-color: rgba(51, 51, 51, 0.6);
+            border-radius: 2.5px;
+        }
 
-            .btn-outline-magenta:hover {
-                background-color: #e0007a;
-                color: white;
-            }
+        /* Obrazovka pro zadání kódu */
+        #passcode-screen {
+            background-image: radial-gradient(circle, #e20074, #ffffff);
+            color: #333333;
+        }
+        .passcode-screen-wrapper { 
+            flex-grow: 1; 
+            display: flex; flex-direction: column; justify-content: center; 
+            align-items: center;
+            padding: 20px;
+            padding-top: 55px; 
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .passcode-prompt {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            margin-top: 5px; 
+        }
+        .passcode-circles { display: flex; gap: 18px; margin-bottom: 40px; }
+        .passcode-circles .circle {
+            width: 16px; height: 16px; border: 1.5px solid rgba(51, 51, 51, 0.6);
+            border-radius: 50%; transition: background-color 0.2s;
+        }
+        .passcode-circles .circle.filled { background-color: rgba(51, 51, 51, 0.8); border-color: rgba(51, 51, 51, 0.8); }
+        .passcode-circles.shake { animation: shake-circles 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake-circles {
+            10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); }
+            30%, 50%, 70% { transform: translateX(-6px); } 40%, 60% { transform: translateX(6px); }
+        }
 
-            nav a {
-                transition: color 0.3s ease;
-            }
+        /* Klávesnice */
+        .keypad {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 15px; width: 100%; max-width: 300px; margin-bottom: 30px;
+        }
+        .keypad-button {
+            width: 75px; height: 75px; border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.12); color: #333333;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; transition: background-color 0.2s;
+            border: none; padding: 0; margin: 0 auto;
+        }
+        .keypad-button:hover { background-color: rgba(0, 0, 0, 0.2); }
+        .keypad-button .digit { font-size: 2rem; font-weight: 400; }
+        .keypad-button .letters { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; opacity: 0.7; margin-top: 2px; }
 
-            nav a:hover {
-                color: #e0007a;
-            }
+        /* Spodní akce na passcode obrazovce */
+        .passcode-actions { 
+            display: flex; justify-content: space-between;
+            width: 100%; max-width: 300px; padding: 0 10px;
+            margin-top: 20px; 
+        }
+        .action-link {
+            background: none; border: none; color: #333333;
+            font-size: 0.95rem; cursor: pointer; padding: 10px; font-weight: 500;
+        }
+        .action-link:hover { color: #000000; }
 
-            .form-input {
-                width: 100%;
-                padding: 0.75rem;
-                border-radius: 0.375rem;
-                border: 1px solid #4a4a6a;
-                background-color: #1a1a2e;
-                color: white;
-                margin-bottom: 1rem;
-            }
+        /* Domovská obrazovka */
+        #home-screen {
+            background-image: radial-gradient(circle, #e20074, #ffffff);
+            color: #333333; /* Bílé pozadí pro domovskou obrazovku */
+        }
+        .home-screen-content { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; /* Hlavní osa je vertikální */
+            padding: 55px 15px 15px; /* Padding shora (pro status bar), po stranách a dole */
+            width: 100%;
+            overflow-y: auto; /* Umožní skrolování, pokud je více ikon */
+        }
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 ikony na řádek */
+            gap: 20px; /* Mezery mezi ikonami */
+            width: 100%;
+            margin-bottom: auto; /* Zatlačí dock dolů, pokud je místo */
+        }
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        .app-icon img {
+            width: 60px; /* Velikost ikony */
+            height: 60px;
+            border-radius: 12px; /* Zaoblení rohů ikony */
+            margin-bottom: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .app-icon span {
+            font-size: 0.7rem; /* Velikost popisku */
+            color: #333333;
+            max-width: 60px; /* Omezení šířky popisku */
+            overflow-wrap: break-word; /* Zalamování dlouhých názvů */
+        }
+        .dock {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: calc(130% - 20px); /* Šířka docku s malým odsazením */
+            max-width: 300px; /* Maximální šířka docku */
+            background-color: rgba(200, 200, 200, 0.3); /* Poloprůhledné pozadí docku */
+            padding: 10px 5px;
+            border-radius: 18px;
+            margin: 10px auto 0; /* Odsazení docku, automatické centrování */
+            backdrop-filter: blur(10px); /* Efekt rozmazání pozadí pod dockem */
+            -webkit-backdrop-filter: blur(10px);
+        }
 
-            .form-input:focus {
-                outline: none;
-                border-color: #e0007a;
-                box-shadow: 0 0 0 2px rgba(224, 0, 122, 0.5);
-            }
+        /* Obrazovky jednotlivých aplikací */
+        .app-screen-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 55px; /* Prostor pro status bar */
+            color: #333333;
+        }
+        .app-screen-content h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
 
-            #mobile-menu {
-                transition: transform 0.3s ease-in-out;
-            }
+    </style>
+</head>
+<body>
 
-            .menu-open {
-                transform: translateX(0%);
-            }
+    <div id="iphone-device">
+        <div id="volume-up-button" class="iphone-side-button volume-button-up" aria-label="Zvýšit hlasitost"></div>
+        <div id="volume-down-button" class="iphone-side-button volume-button-down" aria-label="Snížit hlasitost"></div>
+        <div id="power-button" class="iphone-side-button side-button-power" aria-label="Zamknout/Odemknout"></div>
 
-            .menu-closed {
-                transform: translateX(-100%);
-            }
-        </style>
-    </head>
-    <body class="bg-[#12121f] text-gray-200 flex flex-col min-h-screen">
-        <header class="bg-[#1a1a2e] shadow-lg sticky top-0 z-50">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-20">
-                    <a href="index.html" class="text-3xl font-bold magenta-text">
-                        JL<span class="text-white">Coach</span>
-                    </a>
-                    <nav class="hidden md:flex space-x-6 lg:space-x-8 items-center"></nav>
-                    <div class="md:hidden">
-                        <button id="mobile-menu-button" class="text-gray-300 hover:text-white focus:outline-none">
-                            <a href="index.html">hlavní stránka</a>
-                        </button>
+        <div id="simulated-screen">
+            <div class="dynamic-island"></div> 
+
+            <div id="volume-indicator-overlay">
+                <div id="volume-level-bar-container">
+                    <div id="volume-level-bar"></div>
+                </div>
+            </div>
+
+            <div id="lock-screen" class="screen-view active">
+                <div class="status-bar">
+                    <span class="operator-name">T-Mobile CZ</span>
+                    <div class="icons">
+                        <svg viewBox="0 0 48 38" class="ios-signal-icon"><rect x="2" y="26" width="7" height="9" rx="1.5"></rect><rect x="11" y="19" width="7" height="16" rx="1.5"></rect><rect x="20" y="12" width="7" height="23" rx="1.5"></rect><rect x="29" y="5" width="7" height="30" rx="1.5"></rect></svg>
+                        <svg viewBox="0 0 26 16" class="ios-5g-icon"><text x="0" y="12.5" font-size="13">5G</text></svg>
+                        <svg viewBox="0 0 30 18" class="ios-battery-icon"><rect x="1" y="2.5" width="22" height="11" rx="2" ry="2" stroke-width="1.5" fill="none" stroke="#333333"/><rect x="2.5" y="4" width="15.5" height="8" fill="#333333" rx="1" ry="1"/><rect x="24" y="5.5" width="2" height="5" rx="0.5" ry="0.5" fill="#333333"/></svg>
                     </div>
                 </div>
-            </div>
-            <div id="mobile-menu" class="md:hidden fixed inset-0 bg-[#1a1a2e]/95 backdrop-blur-sm z-40 menu-closed p-6 space-y-6">
-                <div class="flex justify-between items-center mb-8">
-                    <a href="index.html" class="text-3xl font-bold magenta-text">
-                        JL<span class="text-white">Coach</span>
-                    </a>
-                    <button id="close-mobile-menu-button" class="text-gray-300 hover:text-white focus:outline-none">
-                        <a href="index.html">hlavní stránka</a>
-                    </button>
+                <div class="lock-screen-content-wrapper">
+                    <div class="lock-screen-top-info">
+                        <div id="lock-screen-date" class="current-date"></div>
+                        <div id="lock-screen-time-large" class="current-time-large"></div>
+                    </div>
+                    <div class="lock-screen-bottom-controls">
+                        <div class="lock-screen-shortcuts">
+                            <button id="flashlight-btn" class="shortcut-button" aria-label="Svítilna">
+                                <img src="https://i.ibb.co/R4QvChNg/svitilna.png" alt="svítilna">
+                            </button>
+                            <button id="camera-btn" class="shortcut-button" aria-label="Fotoaparát">
+                                <img src="https://i.ibb.co/dJKGtySg/fotoaparat.png" alt="fotoaparát">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                 <div class="home-indicator-area" id="home-indicator-interaction-area"> 
+                    <div class="home-indicator-bar"></div>
                 </div>
             </div>
-        </header>
-        <section id="hero" class="hero-bg py-20 md:py-32 fade-in flex-grow">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-                    Probíhá <span class="magenta-text">aktualizace</span> simulátoru
-                </h1>
-                <p class="text-lg sm:text-xl text-gray-300 mb-10 max-w-2xl mx-auto"></p>
-                <div class="space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a href="index.html" class="btn btn-outline-magenta text-lg">zpět na hlavní stránku</a>
+
+            <div id="passcode-screen" class="screen-view">
+                <div class="status-bar">
+                    <span class="operator-name">T-Mobile CZ</span>
+                     <div class="icons">
+                        <svg viewBox="0 0 48 38" class="ios-signal-icon"><rect x="2" y="26" width="7" height="9" rx="1.5"></rect><rect x="11" y="19" width="7" height="16" rx="1.5"></rect><rect x="20" y="12" width="7" height="23" rx="1.5"></rect><rect x="29" y="5" width="7" height="30" rx="1.5"></rect></svg>
+                        <svg viewBox="0 0 26 16" class="ios-5g-icon"><text x="0" y="12.5" font-size="13">5G</text></svg>
+                        <svg viewBox="0 0 30 18" class="ios-battery-icon"><rect x="1" y="2.5" width="22" height="11" rx="2" ry="2" stroke-width="1.5" fill="none" stroke="#333333"/><rect x="2.5" y="4" width="15.5" height="8" fill="#333333" rx="1" ry="1"/><rect x="24" y="5.5" width="2" height="5" rx="0.5" ry="0.5" fill="#333333"/></svg>
+                    </div>
+                </div>
+                <div class="passcode-screen-wrapper">
+                    <div class="passcode-prompt">Zadejte kód</div>
+                    <div class="passcode-circles">
+                        <div class="circle"></div><div class="circle"></div><div class="circle"></div>
+                        <div class="circle"></div><div class="circle"></div><div class="circle"></div>
+                    </div>
+                    <div class="keypad">
+                        <button class="keypad-button" data-value="1"><span class="digit">1</span><span class="letters">&nbsp;</span></button>
+                        <button class="keypad-button" data-value="2"><span class="digit">2</span><span class="letters">ABC</span></button>
+                        <button class="keypad-button" data-value="3"><span class="digit">3</span><span class="letters">DEF</span></button>
+                        <button class="keypad-button" data-value="4"><span class="digit">4</span><span class="letters">GHI</span></button>
+                        <button class="keypad-button" data-value="5"><span class="digit">5</span><span class="letters">JKL</span></button>
+                        <button class="keypad-button" data-value="6"><span class="digit">6</span><span class="letters">MNO</span></button>
+                        <button class="keypad-button" data-value="7"><span class="digit">7</span><span class="letters">PQRS</span></button>
+                        <button class="keypad-button" data-value="8"><span class="digit">8</span><span class="letters">TUV</span></button>
+                        <button class="keypad-button" data-value="9"><span class="digit">9</span><span class="letters">WXYZ</span></button>
+                        <div class="keypad-button utility" style="visibility: hidden;"></div>
+                        <button class="keypad-button" data-value="0"><span class="digit">0</span><span class="letters">&nbsp;</span></button>
+                        <div class="keypad-button utility" style="visibility: hidden;"></div>
+                    </div>
+                    <div class="passcode-actions">
+                        <button id="emergency-btn" class="action-link">Krizová situace</button>
+                        <button id="cancel-passcode-btn" class="action-link">Zrušit</button>
+                    </div>
+                </div>
+                <div class="home-indicator-area" id="passcode-home-indicator"> 
+                    <div class="home-indicator-bar"></div>
                 </div>
             </div>
-        </section>
-        <footer class="bg-[#12121f] border-t border-gray-700 py-10 text-center">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <a href="index.html" class="text-2xl font-bold magenta-text mb-4 inline-block">
-                    JL<span class="text-white">Coach</span>
-                </a>
-                <div class="flex justify-center space-x-6 mb-6"></div>
-                <p class="text-gray-500 text-sm">
-                    &copy; <span id="currentYear"></span> Všechna práva vyhrazena.
-                </p>
-                <p class="text-xs text-gray-600 mt-2">
-                    Design by: <a href="mailto:jakub1.luhan@t-mobile.cz" target="_blank" rel="noopener noreferrer" class="hover:underline">Jakub Luhan</a>
-                </p>
+
+            <div id="home-screen" class="screen-view">
+                 <div class="status-bar">
+                    <span class="status-bar-time" id="home-screen-status-time"></span> 
+                     <div class="icons">
+                        <svg viewBox="0 0 48 38" class="ios-signal-icon"><rect x="2" y="26" width="7" height="9" rx="1.5"></rect><rect x="11" y="19" width="7" height="16" rx="1.5"></rect><rect x="20" y="12" width="7" height="23" rx="1.5"></rect><rect x="29" y="5" width="7" height="30" rx="1.5"></rect></svg>
+                        <svg viewBox="0 0 26 16" class="ios-5g-icon"><text x="0" y="12.5" font-size="13">5G</text></svg>
+                        <svg viewBox="0 0 30 18" class="ios-battery-icon"><rect x="1" y="2.5" width="22" height="11" rx="2" ry="2" stroke-width="1.5" fill="none" stroke="#333333"/><rect x="2.5" y="4" width="15.5" height="8" fill="#333333" rx="1" ry="1"/><rect x="24" y="5.5" width="2" height="5" rx="0.5" ry="0.5" fill="#333333"/></svg>
+                    </div>
+                </div>
+                <div class="home-screen-content">
+                    <div class="app-grid" id="main-app-grid">
+                        </div>
+                    <div class="dock" id="dock-app-grid">
+                        </div>
+                </div>
+                <div class="home-indicator-area" id="home-screen-home-indicator"> 
+                    <div class="home-indicator-bar"></div>
+                </div>
             </div>
-        </footer>
-        <script>
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const closeMobileMenuButton = document.getElementById('close-mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const mobileMenuLinks = mobileMenu.querySelectorAll('.mobile-menu-link');
 
-            if (mobileMenuButton && closeMobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', () => {
-                    mobileMenu.classList.remove('menu-closed');
-                    mobileMenu.classList.add('menu-open');
-                    document.body.style.overflow = 'hidden';
-                });
+            </div> </div> <script>
+        const lockScreen = document.getElementById('lock-screen');
+        const passcodeScreen = document.getElementById('passcode-screen');
+        const homeScreen = document.getElementById('home-screen');
+        const simulatedScreen = document.getElementById('simulated-screen'); // Odkaz na kontejner obrazovek
 
-                closeMobileMenuButton.addEventListener('click', () => {
-                    mobileMenu.classList.remove('menu-open');
-                    mobileMenu.classList.add('menu-closed');
-                    document.body.style.overflow = '';
-                });
+        // Home Indicators
+        const homeIndicatorLock = document.getElementById('home-indicator-interaction-area');
+        const homeIndicatorPasscode = document.getElementById('passcode-home-indicator');
+        const homeIndicatorHome = document.getElementById('home-screen-home-indicator');
 
-                mobileMenuLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        mobileMenu.classList.remove('menu-open');
-                        mobileMenu.classList.add('menu-closed');
-                        document.body.style.overflow = '';
-                    });
-                });
+        // Side Buttons
+        const powerButton = document.getElementById('power-button');
+        const volumeUpButton = document.getElementById('volume-up-button');
+        const volumeDownButton = document.getElementById('volume-down-button');
+
+        // Volume Indicator Elements
+        const volumeIndicatorOverlay = document.getElementById('volume-indicator-overlay');
+        const volumeLevelBar = document.getElementById('volume-level-bar');
+        
+        const cancelPasscodeBtn = document.getElementById('cancel-passcode-btn');
+        const emergencyBtn = document.getElementById('emergency-btn');
+        const keypadButtons = document.querySelectorAll('.keypad-button[data-value]');
+        const passcodeCirclesContainer = document.querySelector('.passcode-circles');
+        const passcodeCircles = passcodeCirclesContainer.querySelectorAll('.circle');
+
+        const lockScreenTimeLargeEl = document.getElementById('lock-screen-time-large');
+        const lockScreenDateEl = document.getElementById('lock-screen-date');
+        const homeScreenStatusTimeEl = document.getElementById('home-screen-status-time'); 
+
+        const flashlightBtn = document.getElementById('flashlight-btn');
+        const cameraBtn = document.getElementById('camera-btn');
+
+        let currentPasscode = "";
+        const CORRECT_PASSCODE = "320010";
+        let flashlightActive = false;
+
+        let currentVolume = 50; 
+        const volumeStep = 10;
+        let volumeIndicatorTimeout;
+
+        const mainApps = [
+            { name: "Hodiny", icon: "https://i.ibb.co/677118rf/hodiny.png", id: "clock" },
+            { name: "Kalendář", icon: "https://i.ibb.co/gF9QBk9C/kalendar.png", id: "calendar" },
+            { name: "Poznámky", icon: "https://i.ibb.co/vxYKm2mF/poznamky.png", id: "notes" },
+            { name: "Kalkulačka", icon: "https://i.ibb.co/1G6WWy29/kalkulacka.png", id: "calculator" },
+            { name: "Fotoaparát", icon: "https://i.ibb.co/0jv2Pp7R/fotoaparat.png", id: "camera-app" },
+            { name: "Fotky", icon: "https://i.ibb.co/QvypZ4D7/fotky.png", id: "photos" },
+            { name: "Soubory", icon: "https://i.ibb.co/Swp0747n/soubory.png", id: "files" },
+            { name: "YouTube", icon: "https://i.ibb.co/Vb3HwFf/youtube.png", id: "youtube" },
+            { name: "Facebook", icon: "https://i.ibb.co/S4N4r9ZQ/facebook.png", id: "facebook" },
+            { name: "Messenger", icon: "https://i.ibb.co/cSXbVCKR/messenger.png", id: "messenger" },
+            { name: "Instagram", icon: "https://i.ibb.co/jvFnrXjT/instagram.png", id: "instagram" },
+            { name: "WhatsApp", icon: "https://i.ibb.co/B25wc64p/whatsapp.png", id: "whatsapp" },
+            { name: "Safari", icon: "https://i.ibb.co/mrDL8Zxr/safari.png", id: "safari" },
+            { name: "FaceTime", icon: "https://i.ibb.co/1fTXttXH/facetime.png", id: "facetime" },
+            { name: "Najít", icon: "https://i.ibb.co/PGVtyw0N/najit.png", id: "findmy" },
+            { name: "Mapy", icon: "https://i.ibb.co/fzhY0b68/mapy.png", id: "maps" },
+            { name: "Hesla", icon: "https://i.ibb.co/q3WKBDf9/hesla.png", id: "passwords" },
+            { name: "AppStore", icon: "https://i.ibb.co/sdNRMg1K/appstore.png", id: "appstore" },
+            { name: "Nastavení", icon: "https://i.ibb.co/fVY7kGFx/nastaveni.png", id: "settings" }
+        ];
+
+        const dockApps = [
+            { name: "", icon: "https://i.ibb.co/GQCbvY38/kontakty.png", id: "contacts" },
+            { name: "", icon: "https://i.ibb.co/d4ZmbMbq/telefon.png", id: "phone" },
+            { name: "", icon: "https://i.ibb.co/wjcDDqx/zpravy.png", id: "messages" },
+            { name: "", icon: "https://i.ibb.co/JF8zxDXJ/mail.png", id: "mail" }
+        ];
+
+        function createAppScreen(app) {
+            const appScreenId = `app-${app.id}-screen`;
+            // Zkontrolovat, zda obrazovka již neexistuje
+            if (document.getElementById(appScreenId)) {
+                return appScreenId;
             }
 
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    if (!this.classList.contains('mobile-menu-link')) {
-                        const targetId = this.getAttribute('href');
-                        if (targetId === '#') return;
+            const appScreenDiv = document.createElement('div');
+            appScreenDiv.id = appScreenId;
+            appScreenDiv.classList.add('screen-view', 'app-screen'); // Skryto defaultně
+            appScreenDiv.style.backgroundColor = '#f0f0f0'; // Světlé pozadí pro app screen
 
-                        try {
-                            const targetElement = document.querySelector(targetId);
-                            if (targetElement) {
-                                e.preventDefault();
-                                targetElement.scrollIntoView({
-                                    behavior: 'smooth'
-                                });
-                            } else {
-                                console.warn(`Element s ID "${targetId}" pro plynulé skrolování nebyl nalezen.`);
-                            }
-                        } catch (error) {
-                            console.warn(`Neplatný selektor pro plynulé skrolování: "${targetId}"`);
-                        }
+            // Status bar pro app screen
+            const statusBar = `
+                <div class="status-bar">
+                    <span class="status-bar-time" id="app-${app.id}-status-time"></span>
+                    <div class="icons">
+                        <svg viewBox="0 0 48 38" class="ios-signal-icon"><rect x="2" y="26" width="7" height="9" rx="1.5"></rect><rect x="11" y="19" width="7" height="16" rx="1.5"></rect><rect x="20" y="12" width="7" height="23" rx="1.5"></rect><rect x="29" y="5" width="7" height="30" rx="1.5"></rect></svg>
+                        <svg viewBox="0 0 26 16" class="ios-5g-icon"><text x="0" y="12.5" font-size="13">5G</text></svg>
+                        <svg viewBox="0 0 30 18" class="ios-battery-icon"><rect x="1" y="2.5" width="22" height="11" rx="2" ry="2" stroke-width="1.5" fill="none" stroke="#333333"/><rect x="2.5" y="4" width="15.5" height="8" fill="#333333" rx="1" ry="1"/><rect x="24" y="5.5" width="2" height="5" rx="0.5" ry="0.5" fill="#333333"/></svg>
+                    </div>
+                </div>`;
+            
+            // Obsah app screen
+            const content = `
+                <div class="app-screen-content">
+                    <h2>${app.name}</h2>
+                    <p>Toto je obrazovka aplikace ${app.name}.</p>
+                </div>`;
+
+            // Home indicator pro app screen
+            const homeIndicator = `
+                <div class="home-indicator-area app-home-indicator" data-app-id="${app.id}">
+                    <div class="home-indicator-bar"></div>
+                </div>`;
+            
+            appScreenDiv.innerHTML = statusBar + content + homeIndicator;
+            simulatedScreen.appendChild(appScreenDiv);
+            return appScreenId;
+        }
+
+
+        function populateAppGrid(apps, gridElementId) {
+            const grid = document.getElementById(gridElementId);
+            if (!grid) return;
+
+            apps.forEach(app => {
+                const appScreenId = createAppScreen(app); // Vytvoří obrazovku aplikace
+
+                const iconDiv = document.createElement('div');
+                iconDiv.classList.add('app-icon');
+                iconDiv.setAttribute('data-app', appScreenId); // Odkaz na ID obrazovky aplikace
+                
+                const img = document.createElement('img');
+                img.src = app.icon;
+                img.alt = `Ikona ${app.name}`;
+                img.onerror = function() { this.src='https://placehold.co/60x60/e0e0e0/757575?text=App'; this.alt='Placeholder ikona aplikace';};
+
+
+                const span = document.createElement('span');
+                span.textContent = app.name;
+
+                iconDiv.appendChild(img);
+                iconDiv.appendChild(span);
+                grid.appendChild(iconDiv);
+
+                iconDiv.addEventListener('click', () => {
+                    const targetScreenId = iconDiv.getAttribute('data-app');
+                    const targetScreen = document.getElementById(targetScreenId);
+                    if (targetScreen) {
+                        showScreen(targetScreen);
                     }
                 });
             });
-
-            const animatedElements = document.querySelectorAll('.fade-in');
-            if (typeof IntersectionObserver !== 'undefined') {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.style.opacity = 1;
-                            entry.target.style.transform = 'translateY(0)';
-                        } else {
-                        }
-                    });
-                }, { threshold: 0.1 });
-
-                animatedElements.forEach(el => {
-                    el.style.opacity = 0;
-                    el.style.transform = 'translateY(20px)';
-                    el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-                    const delay = el.style.animationDelay;
-                    if (delay) {
-                        el.style.transitionDelay = delay;
-                        el.style.animationDelay = '';
-                    }
-                    observer.observe(el);
+        }
+        
+        function addHomeIndicatorListenersForAppScreens() {
+            const appHomeIndicators = document.querySelectorAll('.app-home-indicator');
+            appHomeIndicators.forEach(indicator => {
+                indicator.addEventListener('click', () => {
+                    showScreen(homeScreen);
                 });
-            } else {
-                animatedElements.forEach(el => {
-                    el.style.opacity = 1;
-                    el.style.transform = 'translateY(0)';
-                });
+            });
+        }
+
+
+        function updateDateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const timeString = `${hours}:${minutes}`; 
+            const optionsDate = { weekday: 'long', month: 'long', day: 'numeric' };
+            const dateString = now.toLocaleDateString('cs-CZ', optionsDate);
+
+            if (lockScreenTimeLargeEl) {
+                lockScreenTimeLargeEl.textContent = timeString; 
             }
-        </script>
-    </body>
+            if (lockScreenDateEl) {
+                lockScreenDateEl.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+            }
+
+            if (homeScreenStatusTimeEl && homeScreen.classList.contains('active')) {
+                homeScreenStatusTimeEl.textContent = timeString;
+            }
+
+            // Aktualizace času pro aktivní app screen
+            const activeAppScreen = document.querySelector('.app-screen.active');
+            if (activeAppScreen) {
+                const appTimeEl = activeAppScreen.querySelector('.status-bar-time');
+                if (appTimeEl) {
+                    appTimeEl.textContent = timeString;
+                }
+            }
+        }
+
+        function showScreen(screenElement) {
+            document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+            screenElement.classList.add('active');
+            updateDateTime(); 
+        }
+
+        function resetPasscodeEntry() {
+            currentPasscode = "";
+            passcodeCircles.forEach(circle => circle.classList.remove('filled'));
+        }
+
+        function updatePasscodeCircles() {
+            passcodeCircles.forEach((circle, index) => {
+                circle.classList.toggle('filled', index < currentPasscode.length);
+            });
+        }
+
+        function handlePasscodeDigit(digit) {
+            if (currentPasscode.length < 6) {
+                currentPasscode += digit;
+                updatePasscodeCircles();
+                if (currentPasscode.length === 6) {
+                    checkPasscode();
+                }
+            }
+        }
+
+        function checkPasscode() {
+            if (currentPasscode === CORRECT_PASSCODE) {
+                setTimeout(() => {
+                    showScreen(homeScreen);
+                    resetPasscodeEntry();
+                }, 200);
+            } else {
+                passcodeCirclesContainer.classList.add('shake');
+                passcodeCircles.forEach(c => c.style.borderColor = '#cc0000');
+
+                setTimeout(() => {
+                    passcodeCirclesContainer.classList.remove('shake');
+                    resetPasscodeEntry();
+                    passcodeCircles.forEach(c => c.style.borderColor = 'rgba(51, 51, 51, 0.6)');
+                }, 600);
+            }
+        }
+
+        function updateVolumeIndicatorDisplay() {
+            if (volumeLevelBar) {
+                volumeLevelBar.style.height = `${currentVolume}%`;
+            }
+        }
+
+        function showVolumeIndicator() {
+            if (volumeIndicatorOverlay) {
+                volumeIndicatorOverlay.classList.remove('hidden-animation'); 
+                volumeIndicatorOverlay.classList.add('visible');
+                updateVolumeIndicatorDisplay();
+
+                clearTimeout(volumeIndicatorTimeout); 
+                volumeIndicatorTimeout = setTimeout(() => {
+                    volumeIndicatorOverlay.classList.add('hidden-animation'); 
+                    setTimeout(() => { 
+                         volumeIndicatorOverlay.classList.remove('visible');
+                    }, 300); 
+                }, 2000); 
+            }
+        }
+
+        if (powerButton) {
+            powerButton.addEventListener('click', () => {
+                console.log("Power button clicked");
+                showScreen(lockScreen);
+                resetPasscodeEntry(); 
+            });
+        }
+
+        if (volumeUpButton) {
+            volumeUpButton.addEventListener('click', () => {
+                currentVolume = Math.min(100, currentVolume + volumeStep);
+                console.log("Volume Up: " + currentVolume);
+                showVolumeIndicator();
+            });
+        }
+
+        if (volumeDownButton) {
+            volumeDownButton.addEventListener('click', () => {
+                currentVolume = Math.max(0, currentVolume - volumeStep);
+                console.log("Volume Down: " + currentVolume);
+                showVolumeIndicator();
+            });
+        }
+
+        if (homeIndicatorLock) {
+            homeIndicatorLock.addEventListener('click', () => {
+                showScreen(passcodeScreen);
+                resetPasscodeEntry();
+            });
+        }
+        if (homeIndicatorPasscode) {
+             homeIndicatorPasscode.addEventListener('click', () => {
+                 showScreen(lockScreen); 
+                 resetPasscodeEntry();
+             });
+        }
+        if (homeIndicatorHome) {
+            homeIndicatorHome.addEventListener('click', () => {
+                console.log("Home indicator on Home Screen clicked - no screen change.");
+            });
+        }
+
+        if (cancelPasscodeBtn) {
+            cancelPasscodeBtn.addEventListener('click', () => {
+                showScreen(lockScreen);
+                resetPasscodeEntry();
+            });
+        }
+
+        if (emergencyBtn) {
+            emergencyBtn.addEventListener('click', () => {
+                console.log("Krizová situace aktivována");
+                const existingMessageBox = document.getElementById('custom-message-box');
+                if (existingMessageBox) existingMessageBox.remove();
+
+                const messageBox = document.createElement('div');
+                messageBox.id = 'custom-message-box';
+                messageBox.style.cssText = 'position: fixed; left: 50%; top: 30%; transform: translate(-50%, -50%); background-color: rgba(50,50,50,0.9); color: white; padding: 25px; border-radius: 12px; z-index: 1001; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-size: 1rem;';
+                messageBox.innerHTML = 'Funkce Krizová situace není v tomto simulátoru plně implementována.<br><button id="close-alert-btn" style="padding: 8px 15px; margin-top: 15px; background-color: #007aff; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 0.9rem;">OK</button>';
+                document.body.appendChild(messageBox);
+                document.getElementById('close-alert-btn').onclick = () => messageBox.remove();
+            });
+        }
+
+        keypadButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const value = button.dataset.value;
+                if (value) handlePasscodeDigit(value);
+            });
+        });
+
+        if (flashlightBtn) {
+            flashlightBtn.addEventListener('click', () => {
+                flashlightActive = !flashlightActive;
+                flashlightBtn.classList.toggle('active', flashlightActive);
+                console.log(flashlightActive ? "Svítilna zapnuta" : "Svítilna vypnuta");
+            });
+        }
+
+        if (cameraBtn) {
+            cameraBtn.addEventListener('click', () => {
+                console.log("Fotoaparát aktivován (simulace)");
+                const existingMessageBox = document.getElementById('custom-message-box');
+                if (existingMessageBox) existingMessageBox.remove();
+                const messageBox = document.createElement('div');
+                messageBox.id = 'custom-message-box';
+                messageBox.style.cssText = 'position: fixed; left: 50%; top: 30%; transform: translate(-50%, -50%); background-color: rgba(50,50,50,0.9); color: white; padding: 25px; border-radius: 12px; z-index: 1001; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-size: 1rem;';
+                messageBox.innerHTML = 'Fotoaparát není v tomto simulátoru implementován.<br>Otevírám obrazovku pro zadání kódu.<br><button id="close-alert-btn" style="padding: 8px 15px; margin-top: 15px; background-color: #007aff; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 0.9rem;">OK</button>';
+                document.body.appendChild(messageBox);
+                document.getElementById('close-alert-btn').onclick = () => {
+                    messageBox.remove();
+                    showScreen(passcodeScreen);
+                    resetPasscodeEntry();
+                };
+            });
+        }
+
+        // Inicializace
+        populateAppGrid(mainApps, 'main-app-grid');
+        populateAppGrid(dockApps, 'dock-app-grid');
+        addHomeIndicatorListenersForAppScreens(); // Přidání listenerů po vytvoření obrazovek aplikací
+
+        showScreen(lockScreen); 
+        setInterval(updateDateTime, 1000); 
+
+    </script>
+</body>
 </html>
