@@ -17,6 +17,7 @@
             min-height: 100vh;
             margin: 0;
             box-sizing: border-box;
+            overscroll-behavior: none; /* Zabraňuje "pull-to-refresh" a řetězení skrolování */
         }
 
         /* Kontejner pro samotné zařízení iPhone */
@@ -39,9 +40,10 @@
             bottom: 14px; 
             background-color: #000000; 
             border-radius: 40px; 
-            overflow: hidden;
+            overflow: hidden; /* Zabrání obsahu přetékat zaoblené rohy */
             display: flex;
             flex-direction: column;
+            overscroll-behavior: contain; /* Zabrání skrolování z vnitřku ovlivnit tělo stránky */
         }
 
         /* Dynamic Island (výřez obrazovky) */
@@ -97,7 +99,7 @@
             flex-direction: column; 
             animation: fadeIn 0.3s ease-in-out;
             position: relative; 
-            background-color: #fff; 
+            background-color: #fff; /* Default background, Clock app will override */
         }
         .screen-view.active { display: flex; } 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -113,14 +115,30 @@
             position: absolute; 
             top: 0; left: 0; right: 0;
             z-index: 10; 
-            color: #333333;
+            color: #333333; /* Default color, Clock app will override */
             cursor: pointer; 
         }
         .status-bar .operator-name, .status-bar .status-bar-time { margin-left: 0; } 
         .status-bar .icons { display: flex; align-items: center; }
-        .status-bar .icons svg { height: 16px; fill: #333333; }
+        .status-bar .icons svg { height: 16px; fill: #333333; /* Default fill, Clock app will override */ }
         .status-bar .icons .ios-battery-icon { height: 17px; }
         .status-bar .icons .ios-5g-icon text { font-family: 'Inter', sans-serif; font-weight: 600; }
+
+        /* Specific status bar for Clock App */
+        #clock-app-screen .status-bar {
+            color: #ffffff;
+        }
+        #clock-app-screen .status-bar .icons svg,
+        #clock-app-screen .status-bar .icons .ios-5g-icon text {
+            fill: #ffffff;
+        }
+        #clock-app-screen .status-bar .ios-battery-icon rect[stroke] {
+            stroke: #ffffff;
+        }
+         #clock-app-screen .status-bar .ios-battery-icon rect[fill="#333333"] {
+            fill: #ffffff;
+        }
+
 
         /* Indikátor hlasitosti */
         #volume-indicator-overlay {
@@ -289,7 +307,12 @@
             flex-direction: column; 
             padding: 55px 15px 15px; 
             width: 100%;
-            overflow-y: auto; 
+            overflow-y: auto; /* Allows app grid to scroll if it overflows */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .home-screen-content::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         .app-grid {
             display: grid;
@@ -332,14 +355,15 @@
             -webkit-backdrop-filter: blur(10px);
         }
 
+        /* Generic App Screen (used by createAppScreen) */
         .app-screen-content {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding-top: 55px; 
-            color: #333333;
+            padding-top: 55px; /* Space for status bar */
+            color: #333333; /* Default text color for generic apps */
         }
         .app-screen-content h2 {
             font-size: 1.8rem;
@@ -432,30 +456,30 @@
         .power-off-slider-container {
             width: 100%;
             max-width: 300px;
-            padding: 10px; /* Menší padding pro těsnější vzhled */
+            padding: 10px;
             background-color: rgba(255,255,255,0.1);
             border-radius: 30px;
             text-align: center;
             position: relative;
-            height: 60px; /* Výška kontejneru slideru */
+            height: 60px; 
             display: flex;
             align-items: center;
         }
         .power-off-slider-knob {
             position: absolute;
-            left: 5px; /* Počáteční pozice */
+            left: 5px; 
             top: 50%;
             transform: translateY(-50%);
-            width: 50px; /* Velikost kolečka */
+            width: 50px; 
             height: 50px;
-            background-color: #ff3b30; /* Červená barva */
+            background-color: #ff3b30; 
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 0 8px rgba(0,0,0,0.4);
             cursor: grab;
-            z-index: 2; /* Nad textem */
+            z-index: 2; 
         }
         .power-off-slider-knob svg {
             width: 28px;
@@ -466,157 +490,10 @@
             color: rgba(255,255,255,0.7);
             font-size: 1rem;
             pointer-events: none; 
-            width: 100%; /* Aby text byl za kolečkem */
+            width: 100%; 
             text-align: center;
-            z-index: 1; /* Pod kolečkem */
+            z-index: 1; 
         }
-
-        .power-off-cancel-btn {
-            background: rgba(255,255,255,0.15);
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .power-off-cancel-btn:hover {
-            background: rgba(255,255,255,0.25);
-        }
-        .power-off-cancel-btn svg {
-            width: 28px;
-            height: 28px;
-            fill: white;
-        }
-
-        /* Control Center */
-        /* Control Center */
-        #control-center-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.3); 
-            z-index: 40; 
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-            display: flex; 
-            justify-content: flex-end; 
-        }
-        #control-center-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        #control-center-panel {
-            position: absolute;
-            top: 0; 
-            right: 0; 
-            width: 80%; 
-            max-width: 280px;
-            height: auto; 
-            min-height: 200px; 
-            background-color: rgba(240, 240, 240, 0.9); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 0 0 0 20px; 
-            box-shadow: -5px 5px 15px rgba(0,0,0,0.1);
-            padding: 20px;
-            padding-top: 50px; 
-            transform: translateY(-100%); 
-            transition: transform 0.3s ease-out;
-            z-index: 41;
-            display: flex;
-            flex-direction: column;
-        }
-        #control-center-overlay.visible #control-center-panel {
-            transform: translateY(0); 
-        }
-        .control-center-header {
-            display: flex;
-            justify-content: flex-end; 
-            margin-bottom: 20px;
-        }
-        .control-center-power-btn {
-            background: rgba(255,59,48,0.8); 
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .control-center-power-btn:hover {
-            background: rgba(255,59,48,1);
-        }
-        .control-center-power-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: white;
-        }
-
-        /* Power Off Screen */
-        #power-off-screen {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0,0,0,0.85); 
-            z-index: 50; 
-            display: none; 
-            flex-direction: column;
-            justify-content: space-between; 
-            align-items: center;
-            padding: 60px 20px 40px;
-            color: white;
-        }
-        .power-off-slider-container {
-            width: 100%;
-            max-width: 300px;
-            padding: 10px; /* Menší padding pro těsnější vzhled */
-            background-color: rgba(255,255,255,0.1);
-            border-radius: 30px;
-            text-align: center;
-            position: relative;
-            height: 60px; /* Výška kontejneru slideru */
-            display: flex;
-            align-items: center;
-        }
-        .power-off-slider-knob {
-            position: absolute;
-            left: 5px; /* Počáteční pozice */
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px; /* Velikost kolečka */
-            height: 50px;
-            background-color: #ff3b30; /* Červená barva */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 8px rgba(0,0,0,0.4);
-            cursor: grab;
-            z-index: 2; /* Nad textem */
-        }
-        .power-off-slider-knob svg {
-            width: 28px;
-            height: 28px;
-            fill: white;
-        }
-        .power-off-slider-text {
-            color: rgba(255,255,255,0.7);
-            font-size: 1rem;
-            pointer-events: none; 
-            width: 100%; /* Aby text byl za kolečkem */
-            text-align: center;
-            z-index: 1; /* Pod kolečkem */
-        }
-
         .power-off-cancel-btn {
             background: rgba(255,255,255,0.15);
             border: none;
@@ -667,179 +544,191 @@
             text-align: center;
         }
 
-        /* APLIKACE HODINY */
-        .app-header {
-            padding: 12px 16px;
-            color: white;
-        }
-        .app-header h1 { /* Default styling for H1 in app-header */
-            font-size: 34px;
-            font-weight: 700;
-            margin-top: 44px; /* Space for status bar, if H1 is the main title */
+        /* STYLY PRO APLIKACI HODINY */
+        #clock-app-screen { /* Celá obrazovka aplikace Hodiny */
+            background-color: #000000;
             color: #ffffff;
         }
-        .app-content {
+        /* Kontejner pro obsah jednotlivých tabů v aplikaci Hodiny */
+        #app-main-content-clock {
+            flex-grow: 1; /* Aby zabral dostupný prostor mezi status barem a tab barem */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Zabrání přetékání obsahu */
+        }
+        /* Hlavička v rámci tabu (např. "Světový čas", "Budíky") */
+        .clock-app-view-header { /* Nahrazuje .app-header pro Hodiny */
+            padding: 12px 16px;
+            /* padding-top zde není, protože h1 níže má margin-top pro status bar */
+        }
+        .clock-app-view-header h1 {
+            font-size: 34px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 44px; /* Prostor pro status bar */
+        }
+        /* Speciální hlavička pro tab Budíky s tlačítky Upravit/Přidat */
+        .alarms-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px; /* Upravený padding */
+            margin-top: 44px; /* Prostor pro status bar */
+            height: 56px; /* Výška hlavičky jako u iOS */
+        }
+        .alarms-header h1 {
+            font-size: 17px; /* Menší font pro "Budíky" uprostřed */
+            font-weight: 600; /* iOS používá semibold */
+            color: #ffffff;
+            text-align: center;
+            flex-grow: 1;
+            margin: 0; /* Reset margin-top, protože alarms-header má vlastní */
+        }
+        .alarms-header button {
+            font-size: 17px;
+            color: #ff9500; /* Oranžová barva pro akce */
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .alarms-header .add-alarm-btn-style { /* Pro tlačítko + */
+             font-size: 30px; font-weight: 300; padding-bottom: 4px; /* Lehké doladění pozice + */
+        }
+
+
+        /* Scrollable content area within a clock app tab */
+        .clock-app-scrollable-content {
             flex-grow: 1;
             overflow-y: auto;
-            color: #ffffff; /* Default text color for app content */
-            background-color: #000000; /* App background */
+            color: #ffffff;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
-        .tab-bar {
+        .clock-app-scrollable-content::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .tab-bar { /* Spodní navigační lišta aplikace Hodiny */
             display: flex;
             justify-content: space-around;
             align-items: center;
-            height: 83px; /* iOS tab bar height with home indicator area */
-            background-color: #1c1c1e; /* Slightly lighter than screen for depth */
-            border-top: 0.5px solid #38383a; /* Subtle top border */
-            padding-bottom: 34px; /* Space for home indicator */
+            height: 83px; 
+            background-color: #1c1c1e; 
+            border-top: 0.5px solid #38383a; 
+            padding-bottom: 34px; /* Prostor pro home indicator uvnitř simulated-screen */
+            flex-shrink: 0; /* Zabrání smrštění */
         }
         .tab-button {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #8e8e93; /* Inactive tab color */
+            color: #8e8e93; 
             font-size: 10px;
             flex-grow: 1;
             padding-top: 6px;
             cursor: pointer;
         }
-        .tab-button.active {
-            color: #ff9500; /* Orange for active tab */
-        }
-        .tab-button svg {
-            width: 24px;
-            height: 24px;
-            margin-bottom: 4px;
-        }
-        /* Common list item styling */
-        .list-item {
+        .tab-button.active { color: #ff9500; }
+        .tab-button svg { width: 24px; height: 24px; margin-bottom: 4px; }
+        
+        .list-item { /* Položka v seznamu (Světový čas, Budíky) */
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 16px;
             border-bottom: 0.5px solid #38383a;
             font-size: 17px;
-            color: #ffffff; /* Ensure default list item text is white */
+            color: #ffffff; 
         }
-        .list-item:last-child {
-            border-bottom: none;
+        .list-item:last-child { border-bottom: none; }
+        
+        .toggle-switch { /* Přepínač pro budíky */
+            position: relative; display: inline-block;
+            width: 51px; height: 31px; flex-shrink: 0;
         }
-        /* Alarm toggle switch */
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 51px;
-            height: 31px;
-            flex-shrink: 0; /* Prevent toggle from shrinking */
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #39393d; /* Off state */
-            transition: .4s;
-            border-radius: 34px;
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #39393d; transition: .4s; border-radius: 34px;
         }
         .slider:before {
-            position: absolute;
-            content: "";
-            height: 27px;
-            width: 27px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+            position: absolute; content: ""; height: 27px; width: 27px;
+            left: 2px; bottom: 2px; background-color: white;
+            transition: .4s; border-radius: 50%;
         }
-        input:checked + .slider {
-            background-color: #34c759; /* Green for on state */
+        input:checked + .slider { background-color: #34c759; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        
+        .control-button { /* Tlačítka pro Stopky a Minutku */
+            width: 80px; height: 80px; border-radius: 50%; font-size: 16px;
+            font-weight: 500; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; border: 2px solid transparent;
         }
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-        /* Stopwatch/Timer buttons */
-        .control-button {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            font-size: 16px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-        .control-button-start { background-color: rgba(48, 128, 52, 0.3); color: #30d158; } /* Green */
-        .control-button-stop { background-color: rgba(255, 55, 45, 0.3); color: #ff453a; } /* Red */
+        .control-button-start { background-color: rgba(48, 128, 52, 0.3); color: #30d158; } 
+        .control-button-stop { background-color: rgba(255, 55, 45, 0.3); color: #ff453a; } 
         .control-button-lap, .control-button-reset, .control-button-cancel { background-color: #333333; color: white; }
-        .control-button-pause { background-color: rgba(255, 149, 0, 0.4); color: #ff9500; } /* Orange */
+        .control-button-pause { background-color: rgba(255, 149, 0, 0.4); color: #ff9500; } 
 
-        .timer-picker-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
+        .timer-picker-container { /* Kontejner pro výběr času v Minutce */
+            display: flex; justify-content: center; align-items: center;
+            height: 200px; margin: 20px 0; position: relative; overflow: hidden;
         }
         .timer-picker-column {
-            width: 70px;
-            height: 100%;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+            width: 70px; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory;
+            -ms-overflow-style: none; scrollbar-width: none; /* Již zde bylo pro skrytí scrollbaru */
         }
-        .timer-picker-column::-webkit-scrollbar { display: none; }
+        .timer-picker-column::-webkit-scrollbar { display: none; /* Již zde bylo pro skrytí scrollbaru */ }
         .timer-picker-item {
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: #8e8e93;
-            scroll-snap-align: center;
-            scroll-snap-stop: always;
+            height: 40px; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: #8e8e93; scroll-snap-align: center; scroll-snap-stop: always;
         }
         .timer-selection-indicator {
-            position: absolute;
-            top: 50%;
-            left: 10px; right: 10px;
-            transform: translateY(-50%);
-            height: 40px;
-            border-top: 1px solid #555;
-            border-bottom: 1px solid #555;
-            pointer-events: none;
-            z-index: 1;
+            position: absolute; top: 50%; left: 10px; right: 10px;
+            transform: translateY(-50%); height: 40px;
+            border-top: 1px solid #555; border-bottom: 1px solid #555;
+            pointer-events: none; z-index: 1;
         }
         .timer-picker-item.selected { color: #ffffff; font-weight: 600; }
 
-        .delete-button {
+        .delete-button { /* Tlačítko pro smazání budíku */
             background-color: #ff3b30; color: white; border: none; border-radius: 50%;
             width: 30px; height: 30px; font-size: 20px; line-height: 30px;
             text-align: center; cursor: pointer; margin-right: 10px; display: none;
         }
         .editing .delete-button { display: inline-block; }
 
-        .lap-item {
+        .lap-item { /* Položka mezičasu u Stopek */
             display: flex; justify-content: space-between; padding: 8px 16px;
             font-size: 17px; color: #ffffff; border-bottom: 0.5px solid #38383a;
         }
         .lap-item:last-child { border-bottom: none; }
         .lap-number { color: #8e8e93; }
-        .text-gray-400 { color: #8e8e93; } /* Custom utility for secondary text */
+        .text-gray-400 { color: #8e8e93; } 
         .text-white { color: #ffffff; }
+
+        /* Stopky a Minutka - hlavní zobrazení času */
+        .stopwatch-timer-display {
+            font-size: 72px; /* Větší písmo pro čas */
+            font-weight: 200; /* Tenčí řez písma */
+            color: #ffffff;
+            text-align: center;
+            margin: 40px 0; /* Větší odsazení */
+            letter-spacing: 1px;
+        }
+         /* Kontejner pro tlačítka u Stopek a Minutky */
+        .stopwatch-timer-controls {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            padding: 0 20px; /* Odsazení od krajů */
+            box-sizing: border-box;
+            margin-top: 30px; /* Odsazení od horního obsahu */
+        }
+        /* Posunutí tlačítek Minutky nahoru */
+        #timer-controls-wrapper {
+            transform: translateY(-30px);
+        }
     </style>
 </head>
 <body>
@@ -878,7 +767,7 @@
                     </div>
                     <span class="power-off-slider-text">Vypněte přejetím</span>
                 </div>
-                </div>
+            </div>
 
 
             <div id="lock-screen" class="screen-view active">
@@ -961,46 +850,62 @@
                 </div>
                 <div class="home-screen-content">
                     <div class="app-grid" id="main-app-grid">
-                        <div id="app-main-content" class="flex-grow flex flex-col">
-                </div>
                         </div>
                     <div class="dock" id="dock-app-grid">
                         </div>
                 </div>
-                            <!-- APLIKACE HODINY -->
-            <div class="tab-bar">
-                <button class="tab-button active" data-tab="world-clock">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zM12 6a1 1 0 00-1 1v4.586l-2.707 2.707 1.414 1.414L12 12.414V7a1 1 0 00-1-1zm5.707.293-3-3a1 1 0 10-1.414 1.414L14.586 7H9.414l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 9h5.172l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414z"/></svg>
-                    <span>Světový čas</span>
-                </button>
-                <button class="tab-button" data-tab="alarms">
-                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/><path d="M13 7h-2v5.414l3.293 3.293 1.414-1.414L13 11.586z"/></svg>
-                    <span>Budíky</span>
-                </button>
-                <button class="tab-button" data-tab="stopwatch">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-5.514 0-10 4.486-10 10s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm1-13h-2v6l5 3 1-1.732-4-2.42V7zM7 1h10v2H7z"/></svg>
-                    <span>Stopky</span>
-                </button>
-                <button class="tab-button" data-tab="timer">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zM6 4h12v2H6V4zm0 16v-9h12v9H6zm7-6.5c0-.276-.224-.5-.5-.5h-3c-.276 0-.5.224-.5.5s.224.5.5.5h3c.276 0 .5-.224.5-.5z"/></svg>
-                    <span>Minutka</span>
-                </button>
-            </div>
                 <div class="home-indicator-area" id="home-screen-home-indicator"> 
                     <div class="home-indicator-bar"></div>
                 </div>
             </div>
+
+            <div id="clock-app-screen" class="screen-view">
+                <div class="status-bar">
+                    <span class="status-bar-time" id="clock-app-status-time"></span>
+                    <div class="icons">
+                        <svg viewBox="0 0 48 38" class="ios-signal-icon"><rect x="2" y="26" width="7" height="9" rx="1.5"></rect><rect x="11" y="19" width="7" height="16" rx="1.5"></rect><rect x="20" y="12" width="7" height="23" rx="1.5"></rect><rect x="29" y="5" width="7" height="30" rx="1.5"></rect></svg>
+                        <svg viewBox="0 0 26 16" class="ios-5g-icon"><text x="0" y="12.5" font-size="13">5G</text></svg>
+                        <svg viewBox="0 0 30 18" class="ios-battery-icon"><rect x="1" y="2.5" width="22" height="11" rx="2" ry="2" stroke-width="1.5" fill="none" stroke="#ffffff"/><rect x="2.5" y="4" width="15.5" height="8" fill="#ffffff" rx="1" ry="1"/><rect x="24" y="5.5" width="2" height="5" rx="0.5" ry="0.5" fill="#ffffff"/></svg>
+                    </div>
+                </div>
+                <div id="app-main-content-clock">
+                    </div>
+                <div class="tab-bar">
+                    <button class="tab-button active" data-tab="world-clock">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zM12 6a1 1 0 00-1 1v4.586l-2.707 2.707 1.414 1.414L12 12.414V7a1 1 0 00-1-1zm5.707.293-3-3a1 1 0 10-1.414 1.414L14.586 7H9.414l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 9h5.172l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414z"/></svg>
+                        <span>Světový čas</span>
+                    </button>
+                    <button class="tab-button" data-tab="alarms">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/><path d="M13 7h-2v5.414l3.293 3.293 1.414-1.414L13 11.586z"/></svg>
+                        <span>Budíky</span>
+                    </button>
+                    <button class="tab-button" data-tab="stopwatch">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-5.514 0-10 4.486-10 10s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm1-13h-2v6l5 3 1-1.732-4-2.42V7zM7 1h10v2H7z"/></svg>
+                        <span>Stopky</span>
+                    </button>
+                    <button class="tab-button" data-tab="timer">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zM6 4h12v2H6V4zm0 16v-9h12v9H6zm7-6.5c0-.276-.224-.5-.5-.5h-3c-.276 0-.5.224-.5.5s.224.5.5.5h3c.276 0 .5-.224.5-.5z"/></svg>
+                        <span>Minutka</span>
+                    </button>
+                </div>
+                <div class="home-indicator-area" id="clock-app-home-indicator"> 
+                    <div class="home-indicator-bar" style="background-color: rgba(255, 255, 255, 0.6);"></div> </div>
+            </div>
             
-        </div> </div> 
+        </div> 
+    </div> 
         <script>
+        // Globální proměnné a selektory DOM pro celý simulátor
         const lockScreen = document.getElementById('lock-screen');
         const passcodeScreen = document.getElementById('passcode-screen');
         const homeScreen = document.getElementById('home-screen');
+        const clockAppScreen = document.getElementById('clock-app-screen'); // Nová obrazovka pro hodiny
         const simulatedScreen = document.getElementById('simulated-screen'); 
 
         const homeIndicatorLock = document.getElementById('home-indicator-interaction-area');
         const homeIndicatorPasscode = document.getElementById('passcode-home-indicator');
         const homeIndicatorHome = document.getElementById('home-screen-home-indicator');
+        const homeIndicatorClockApp = document.getElementById('clock-app-home-indicator'); // Nový home indicator
 
         const powerButton = document.getElementById('power-button');
         const volumeUpButton = document.getElementById('volume-up-button');
@@ -1018,6 +923,7 @@
         const lockScreenTimeLargeEl = document.getElementById('lock-screen-time-large');
         const lockScreenDateEl = document.getElementById('lock-screen-date');
         const homeScreenStatusTimeEl = document.getElementById('home-screen-status-time'); 
+        const clockAppStatusTimeEl = document.getElementById('clock-app-status-time'); // Pro čas v hodinách
 
         const flashlightBtn = document.getElementById('flashlight-btn');
         const cameraBtn = document.getElementById('camera-btn');
@@ -1028,28 +934,23 @@
         const powerOffScreen = document.getElementById('power-off-screen');
         const powerOffSliderContainer = document.getElementById('power-off-slider-container'); 
         const powerOffSliderKnob = document.getElementById('power-off-slider-knob'); 
-        // const cancelPowerOffBtn = document.getElementById('cancel-power-off-btn'); // Odebráno
-
         const shutdownFadeOverlay = document.getElementById('shutdown-fade-overlay');
-
 
         let currentPasscode = "";
         const CORRECT_PASSCODE = "320010";
         let flashlightActive = false;
-
         let currentVolume = 50; 
         const volumeStep = 10;
         let volumeIndicatorTimeout;
         let controlCenterVisible = false;
-
         let isDraggingSlider = false;
         let sliderStartX;
         let knobStartLeft;
         const sliderThresholdPercentage = 0.7; 
 
-
+        // Definice aplikací
         const mainApps = [
-            { name: "Hodiny", icon: "https://i.ibb.co/677118rf/hodiny.png", id: "clock" },
+            { name: "Hodiny", icon: "https://i.ibb.co/677118rf/hodiny.png", id: "clock", targetScreen: "clock-app-screen" }, // Cílí na novou obrazovku
             { name: "Kalendář", icon: "https://i.ibb.co/gF9QBk9C/kalendar.png", id: "calendar" },
             { name: "Poznámky", icon: "https://i.ibb.co/vxYKm2mF/poznamky.png", id: "notes" },
             { name: "Kalkulačka", icon: "https://i.ibb.co/1G6WWy29/kalkulacka.png", id: "calculator" },
@@ -1069,7 +970,6 @@
             { name: "AppStore", icon: "https://i.ibb.co/sdNRMg1K/appstore.png", id: "appstore" },
             { name: "Nastavení", icon: "https://i.ibb.co/fVY7kGFx/nastaveni.png", id: "settings" }
         ];
-
         const dockApps = [
             { name: "", icon: "https://i.ibb.co/GQCbvY38/kontakty.png", id: "contacts" },
             { name: "", icon: "https://i.ibb.co/d4ZmbMbq/telefon.png", id: "phone" },
@@ -1077,9 +977,10 @@
             { name: "", icon: "https://i.ibb.co/JF8zxDXJ/mail.png", id: "mail" }
         ];
 
+        // Funkce pro vytvoření obrazovky generické aplikace (pokud není speciální jako Hodiny)
         function createAppScreen(app) {
             const appScreenId = `app-${app.id}-screen`;
-            if (document.getElementById(appScreenId)) {
+            if (document.getElementById(appScreenId)) { // Pokud již existuje, nechej ji být
                 return appScreenId;
             }
 
@@ -1118,23 +1019,26 @@
             return appScreenId;
         }
 
-
+        // Funkce pro naplnění mřížky aplikací
         function populateAppGrid(apps, gridElementId) {
             const grid = document.getElementById(gridElementId);
             if (!grid) return;
 
             apps.forEach(app => {
-                const appScreenId = createAppScreen(app); 
+                // Pokud aplikace není Hodiny, vytvoř pro ni generickou obrazovku (pokud ještě neexistuje)
+                if (app.id !== "clock") {
+                    createAppScreen(app); 
+                }
 
                 const iconDiv = document.createElement('div');
                 iconDiv.classList.add('app-icon');
-                iconDiv.setAttribute('data-app', appScreenId); 
+                // Cíl kliknutí je buď app.targetScreen (pro Hodiny) nebo generovaný ID
+                iconDiv.setAttribute('data-target-screen', app.targetScreen || `app-${app.id}-screen`); 
                 
                 const img = document.createElement('img');
                 img.src = app.icon;
                 img.alt = `Ikona ${app.name}`;
                 img.onerror = function() { this.src='https://placehold.co/60x60/e0e0e0/757575?text=App'; this.alt='Placeholder ikona aplikace';};
-
 
                 const span = document.createElement('span');
                 span.textContent = app.name;
@@ -1144,27 +1048,34 @@
                 grid.appendChild(iconDiv);
 
                 iconDiv.addEventListener('click', () => {
-                    const targetScreenId = iconDiv.getAttribute('data-app');
-                    const targetScreen = document.getElementById(targetScreenId);
-                    if (targetScreen) {
-                        showScreen(targetScreen);
+                    const targetScreenId = iconDiv.getAttribute('data-target-screen');
+                    const targetScreenElement = document.getElementById(targetScreenId);
+                    if (targetScreenElement) {
+                        showScreen(targetScreenElement);
+                        if (targetScreenId === 'clock-app-screen') {
+                            // Při otevření aplikace Hodiny, zobraz výchozí tab (Světový čas)
+                            switchTab('world-clock'); 
+                        }
                     }
                 });
             });
         }
         
+        // Funkce pro přidání listenerů k home indikátorům generických aplikací
         function addHomeIndicatorListenersForAppScreens() {
             const appHomeIndicators = document.querySelectorAll('.app-home-indicator');
             appHomeIndicators.forEach(indicator => {
+                // Odstranění starých listenerů před přidáním nových (pro jistotu)
                 const newIndicator = indicator.cloneNode(true);
                 indicator.parentNode.replaceChild(newIndicator, indicator);
+                
                 newIndicator.addEventListener('click', () => {
                     showScreen(homeScreen);
                 });
             });
         }
 
-
+        // Funkce pro aktualizaci data a času
         function updateDateTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -1173,69 +1084,60 @@
             const optionsDate = { weekday: 'long', month: 'long', day: 'numeric' };
             const dateString = now.toLocaleDateString('cs-CZ', optionsDate);
 
-            if (lockScreenTimeLargeEl) {
-                lockScreenTimeLargeEl.textContent = timeString; 
-            }
-            if (lockScreenDateEl) {
-                lockScreenDateEl.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
-            }
-
-            if (homeScreenStatusTimeEl && homeScreen.classList.contains('active')) {
-                homeScreenStatusTimeEl.textContent = timeString;
-            }
-
-            const activeAppScreen = document.querySelector('.app-screen.active');
-            if (activeAppScreen) {
-                const appTimeEl = activeAppScreen.querySelector('.status-bar-time');
-                if (appTimeEl) {
-                    appTimeEl.textContent = timeString;
+            if (lockScreenTimeLargeEl) lockScreenTimeLargeEl.textContent = timeString; 
+            if (lockScreenDateEl) lockScreenDateEl.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+            
+            // Aktualizace času ve stavovém řádku aktivní obrazovky
+            const activeScreen = document.querySelector('.screen-view.active');
+            if (activeScreen) {
+                const timeEl = activeScreen.querySelector('.status-bar .status-bar-time');
+                if (timeEl) {
+                    timeEl.textContent = timeString;
                 }
             }
         }
 
+        // Funkce pro zobrazení konkrétní obrazovky
         function showScreen(screenElement) {
             document.querySelectorAll('.screen-view').forEach(s => {
                 s.classList.remove('active');
-                if (s.id !== 'power-off-screen') { 
-                    s.style.display = 'none';
-                }
+                if (s.id !== 'power-off-screen') s.style.display = 'none';
             });
             if (screenElement) { 
                  screenElement.classList.add('active');
-                 if (screenElement.id !== 'power-off-screen') {
-                    screenElement.style.display = 'flex';
-                 }
+                 if (screenElement.id !== 'power-off-screen') screenElement.style.display = 'flex';
             }
             if (screenElement && screenElement.id === 'power-off-screen') {
                 powerOffScreen.style.display = 'flex';
             } else if (powerOffScreen && powerOffScreen.style.display === 'flex' && screenElement !== powerOffScreen) {
                 powerOffScreen.style.display = 'none';
             }
-
             updateDateTime(); 
         }
 
+        // Funkce pro resetování zadaného kódu
         function resetPasscodeEntry() {
             currentPasscode = "";
             passcodeCircles.forEach(circle => circle.classList.remove('filled'));
         }
 
+        // Funkce pro aktualizaci vizuálu koleček pro kód
         function updatePasscodeCircles() {
             passcodeCircles.forEach((circle, index) => {
                 circle.classList.toggle('filled', index < currentPasscode.length);
             });
         }
 
+        // Funkce pro zpracování zadané číslice kódu
         function handlePasscodeDigit(digit) {
             if (currentPasscode.length < 6) {
                 currentPasscode += digit;
                 updatePasscodeCircles();
-                if (currentPasscode.length === 6) {
-                    checkPasscode();
-                }
+                if (currentPasscode.length === 6) checkPasscode();
             }
         }
 
+        // Funkce pro kontrolu zadaného kódu
         function checkPasscode() {
             if (currentPasscode === CORRECT_PASSCODE) {
                 setTimeout(() => {
@@ -1245,7 +1147,6 @@
             } else {
                 passcodeCirclesContainer.classList.add('shake');
                 passcodeCircles.forEach(c => c.style.borderColor = '#cc0000');
-
                 setTimeout(() => {
                     passcodeCirclesContainer.classList.remove('shake');
                     resetPasscodeEntry();
@@ -1254,69 +1155,58 @@
             }
         }
 
+        // Funkce pro zobrazení a aktualizaci indikátoru hlasitosti
         function updateVolumeIndicatorDisplay() {
-            if (volumeLevelBar) {
-                volumeLevelBar.style.height = `${currentVolume}%`;
-            }
+            if (volumeLevelBar) volumeLevelBar.style.height = `${currentVolume}%`;
         }
-
         function showVolumeIndicator() {
             if (volumeIndicatorOverlay) {
                 volumeIndicatorOverlay.classList.remove('hidden-animation'); 
                 volumeIndicatorOverlay.classList.add('visible');
                 updateVolumeIndicatorDisplay();
-
                 clearTimeout(volumeIndicatorTimeout); 
                 volumeIndicatorTimeout = setTimeout(() => {
                     volumeIndicatorOverlay.classList.add('hidden-animation'); 
-                    setTimeout(() => { 
-                         volumeIndicatorOverlay.classList.remove('visible');
-                    }, 300); 
+                    setTimeout(() => volumeIndicatorOverlay.classList.remove('visible'), 300); 
                 }, 2000); 
             }
         }
         
+        // Funkce pro přepnutí Ovládacího Centra
         function toggleControlCenter() {
             const currentActiveScreen = document.querySelector('.screen-view.active');
-            if (currentActiveScreen && (currentActiveScreen.id === 'home-screen' || currentActiveScreen.classList.contains('app-screen'))) {
+            // Povolit CC pouze na home screen a v aplikacích (včetně Hodin)
+            if (currentActiveScreen && (currentActiveScreen.id === 'home-screen' || currentActiveScreen.classList.contains('app-screen') || currentActiveScreen.id === 'clock-app-screen')) {
                 controlCenterVisible = !controlCenterVisible;
-                if (controlCenterOverlay) {
-                    controlCenterOverlay.classList.toggle('visible', controlCenterVisible);
-                }
+                if (controlCenterOverlay) controlCenterOverlay.classList.toggle('visible', controlCenterVisible);
             }
         }
         
+        // Funkce pro ovládání posuvníku vypnutí
         function handleSliderDragStart(e) {
             isDraggingSlider = true;
             if (powerOffSliderKnob) powerOffSliderKnob.style.cursor = 'grabbing';
             sliderStartX = e.clientX || (e.touches && e.touches[0].clientX);
             if (powerOffSliderKnob) knobStartLeft = powerOffSliderKnob.offsetLeft;
-            
             document.addEventListener('mousemove', handleSliderDragMove);
             document.addEventListener('touchmove', handleSliderDragMove, { passive: false }); 
             document.addEventListener('mouseup', handleSliderDragEnd);
             document.addEventListener('touchend', handleSliderDragEnd);
             if (e.touches && e.preventDefault) e.preventDefault(); 
         }
-
         function handleSliderDragMove(e) {
             if (!isDraggingSlider) return;
             if (e.preventDefault) e.preventDefault(); 
-
             const currentX = e.clientX || (e.touches && e.touches[0].clientX);
             const deltaX = currentX - sliderStartX;
             let newLeft = knobStartLeft + deltaX;
-
             const containerRect = powerOffSliderContainer.getBoundingClientRect();
             const knobRect = powerOffSliderKnob.getBoundingClientRect();
-            
             const minLeft = 0; 
             const maxLeft = containerRect.width - knobRect.width - (2 * 5); 
-
             newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
             if (powerOffSliderKnob) powerOffSliderKnob.style.left = `${newLeft}px`;
         }
-
         function handleSliderDragEnd() {
             if (!isDraggingSlider) return;
             isDraggingSlider = false;
@@ -1331,107 +1221,52 @@
             const currentKnobPosition = powerOffSliderKnob.offsetLeft;
             const activationThreshold = (containerRect.width - knobRect.width - 10) * sliderThresholdPercentage;
 
-
             if (currentKnobPosition >= activationThreshold) {
-                console.log("Power off slider activated - initiating shutdown sequence");
-                
                 const messageBox = document.createElement('div');
                 messageBox.className = 'shutdown-message';
                 messageBox.textContent = "Čekejte, prosím. Simulátor se vypíná.";
-                
                 if (shutdownFadeOverlay) {
                     shutdownFadeOverlay.innerHTML = ''; 
                     shutdownFadeOverlay.appendChild(messageBox);
                     shutdownFadeOverlay.classList.add('visible');
                 }
-                
-                setTimeout(() => {
-                    // Zde by se normálně jen čekalo, zpráva je již v overlayi
-                    setTimeout(() => {
-                        console.log("Redirecting to index.html");
-                        window.location.href = 'index.html'; 
-                    }, 5000); // Čekání 2s s černým overlayem
-                }, 100); // Krátká prodleva pro zobrazení zprávy
-
+                setTimeout(() => setTimeout(() => window.location.href = 'index.html', 5000), 100); 
             } else {
                 if (powerOffSliderKnob) {
                     powerOffSliderKnob.style.transition = 'left 0.3s ease-out';
                     powerOffSliderKnob.style.left = '5px'; 
-                    setTimeout(() => {
-                        if (powerOffSliderKnob) powerOffSliderKnob.style.transition = ''; 
-                    }, 3000);
+                    setTimeout(() => { if (powerOffSliderKnob) powerOffSliderKnob.style.transition = ''; }, 3000);
                 }
             }
         }
         
+        // Event Listenery pro hardware tlačítka a posuvník
         if (powerOffSliderKnob) {
             powerOffSliderKnob.addEventListener('mousedown', handleSliderDragStart);
             powerOffSliderKnob.addEventListener('touchstart', handleSliderDragStart, { passive: false });
         }
+        if (powerButton) powerButton.addEventListener('click', () => { showScreen(lockScreen); resetPasscodeEntry(); });
+        if (volumeUpButton) volumeUpButton.addEventListener('click', () => { currentVolume = Math.min(100, currentVolume + volumeStep); showVolumeIndicator(); });
+        if (volumeDownButton) volumeDownButton.addEventListener('click', () => { currentVolume = Math.max(0, currentVolume - volumeStep); showVolumeIndicator(); });
 
-        if (powerButton) {
-            powerButton.addEventListener('click', () => {
-                console.log("Power button clicked");
-                showScreen(lockScreen);
-                resetPasscodeEntry(); 
-            });
-        }
+        // Event Listenery pro Home Indicator
+        if (homeIndicatorLock) homeIndicatorLock.addEventListener('click', () => { showScreen(passcodeScreen); resetPasscodeEntry(); });
+        if (homeIndicatorPasscode) homeIndicatorPasscode.addEventListener('click', () => { showScreen(lockScreen); resetPasscodeEntry(); });
+        if (homeIndicatorHome) homeIndicatorHome.addEventListener('click', () => showScreen(homeScreen));
+        if (homeIndicatorClockApp) homeIndicatorClockApp.addEventListener('click', () => showScreen(homeScreen)); // Nový listener
 
-        if (volumeUpButton) {
-            volumeUpButton.addEventListener('click', () => {
-                currentVolume = Math.min(100, currentVolume + volumeStep);
-                console.log("Volume Up: " + currentVolume);
-                showVolumeIndicator();
-            });
-        }
-
-        if (volumeDownButton) {
-            volumeDownButton.addEventListener('click', () => {
-                currentVolume = Math.max(0, currentVolume - volumeStep);
-                console.log("Volume Down: " + currentVolume);
-                showVolumeIndicator();
-            });
-        }
-
-        if (homeIndicatorLock) {
-            homeIndicatorLock.addEventListener('click', () => {
-                showScreen(passcodeScreen);
-                resetPasscodeEntry();
-            });
-        }
-        if (homeIndicatorPasscode) {
-             homeIndicatorPasscode.addEventListener('click', () => {
-                 showScreen(lockScreen); 
-                 resetPasscodeEntry();
-             });
-        }
-        if (homeIndicatorHome) {
-            homeIndicatorHome.addEventListener('click', () => {
-                 showScreen(homeScreen);
-            });
-        }
-
+        // Event Listenery pro Status Bar a Control Center
         document.querySelectorAll('.status-bar').forEach(sb => {
             sb.addEventListener('click', (event) => {
                 const clickedOnIcon = event.target.closest('.icons');
                 const currentActiveScreen = document.querySelector('.screen-view.active');
-                if (currentActiveScreen && (currentActiveScreen.id === 'home-screen' || currentActiveScreen.classList.contains('app-screen')) &&
-                    (!powerOffScreen || powerOffScreen.style.display !== 'flex') && 
-                    !clickedOnIcon) {
+                if (currentActiveScreen && (currentActiveScreen.id === 'home-screen' || currentActiveScreen.classList.contains('app-screen') || currentActiveScreen.id === 'clock-app-screen') &&
+                    (!powerOffScreen || powerOffScreen.style.display !== 'flex') && !clickedOnIcon) {
                     toggleControlCenter();
                 }
             });
         });
-
-        if(controlCenterOverlay) {
-            controlCenterOverlay.addEventListener('click', (event) => {
-                if (event.target === controlCenterOverlay) {
-                    toggleControlCenter();
-                }
-            });
-        }
-
-
+        if(controlCenterOverlay) controlCenterOverlay.addEventListener('click', (event) => { if (event.target === controlCenterOverlay) toggleControlCenter(); });
         if (controlCenterPowerOffBtn) {
             controlCenterPowerOffBtn.addEventListener('click', () => {
                 if (controlCenterOverlay) controlCenterOverlay.classList.remove('visible');
@@ -1444,21 +1279,12 @@
             });
         }
 
-        // Odebrán listener pro cancelPowerOffBtn, protože tlačítko bylo odstraněno
-
-        if (cancelPasscodeBtn) {
-            cancelPasscodeBtn.addEventListener('click', () => {
-                showScreen(lockScreen);
-                resetPasscodeEntry();
-            });
-        }
-
+        // Event Listenery pro Passcode Screen
+        if (cancelPasscodeBtn) cancelPasscodeBtn.addEventListener('click', () => { showScreen(lockScreen); resetPasscodeEntry(); });
         if (emergencyBtn) {
             emergencyBtn.addEventListener('click', () => {
-                console.log("Krizová situace aktivována");
                 const existingMessageBox = document.getElementById('custom-message-box');
                 if (existingMessageBox) existingMessageBox.remove();
-
                 const messageBox = document.createElement('div');
                 messageBox.id = 'custom-message-box';
                 messageBox.style.cssText = 'position: fixed; left: 50%; top: 30%; transform: translate(-50%, -50%); background-color: rgba(50,50,50,0.9); color: white; padding: 25px; border-radius: 12px; z-index: 1001; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-size: 1rem;';
@@ -1467,25 +1293,17 @@
                 document.getElementById('close-alert-btn').onclick = () => messageBox.remove();
             });
         }
+        keypadButtons.forEach(button => button.addEventListener('click', () => { const value = button.dataset.value; if (value) handlePasscodeDigit(value); }));
 
-        keypadButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const value = button.dataset.value;
-                if (value) handlePasscodeDigit(value);
-            });
-        });
-
+        // Event Listenery pro zkratky na Lock Screen
         if (flashlightBtn) {
             flashlightBtn.addEventListener('click', () => {
                 flashlightActive = !flashlightActive;
                 flashlightBtn.classList.toggle('active', flashlightActive);
-                console.log(flashlightActive ? "Svítilna zapnuta" : "Svítilna vypnuta");
             });
         }
-
         if (cameraBtn) {
             cameraBtn.addEventListener('click', () => {
-                console.log("Fotoaparát aktivován (simulace)");
                 const existingMessageBox = document.getElementById('custom-message-box');
                 if (existingMessageBox) existingMessageBox.remove();
                 const messageBox = document.createElement('div');
@@ -1501,47 +1319,29 @@
             });
         }
 
-        // Inicializace
-        populateAppGrid(mainApps, 'main-app-grid');
-        populateAppGrid(dockApps, 'dock-app-grid');
-        addHomeIndicatorListenersForAppScreens(); 
+        // --- KÓD PRO APLIKACI HODINY ---
+        const appMainContentForClock = document.getElementById('app-main-content-clock');
+        const clockTabButtons = document.querySelectorAll('#clock-app-screen .tab-button'); // Cílení na tlačítka v hodinách
 
-        showScreen(lockScreen); 
-        setInterval(updateDateTime, 1000); 
-
-        // APP Hodiny
-            const appMainContent = document.getElementById('app-main-content');
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const statusBarTime = document.getElementById('status-bar-time');
-
-        let alarms = [
+        let clockAlarms = [ // Přejmenováno, aby se nekonfliktovalo s globálními proměnnými
             { id: Date.now() + 1, time: "06:45", label: "I. budík", repeat: "Každý všední den", enabled: true, days: [1,2,3,4,5] },
             { id: Date.now() + 2, time: "07:00", label: "II. budík", repeat: "Každý den", enabled: true, days: [0,1,2,3,4,5,6] },
             { id: Date.now() + 3, time: "07:15", label: "III. budík", repeat: "Každý víkend", enabled: true, days: [0,6] }
         ];
-        let isEditingAlarms = false;
+        let isEditingClockAlarms = false; // Přejmenováno
 
-        // Stopwatch state
-        let stopwatchInterval;
-        let stopwatchTime = 0; // in centiseconds
-        let stopwatchRunning = false;
-        let stopwatchLaps = [];
+        let clockStopwatchInterval; // Přejmenováno
+        let clockStopwatchTime = 0; 
+        let clockStopwatchRunning = false;
+        let clockStopwatchLaps = [];
 
-        // Timer state
-        let timerInterval;
-        let timerTotalSeconds = 0;
-        let timerRemainingSeconds = 0;
-        let timerRunning = false;
-        const timerPickers = {};
+        let clockTimerInterval; // Přejmenováno
+        let clockTimerTotalSeconds = 0;
+        let clockTimerRemainingSeconds = 0;
+        let clockTimerRunning = false;
+        const clockTimerPickers = {}; // Přejmenováno
 
-        function updateStatusBarTime() {
-            const now = new Date();
-            statusBarTime.textContent = now.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
-        }
-        setInterval(updateStatusBarTime, 1000);
-        updateStatusBarTime();
-
-
+        // Funkce pro vykreslení Světového času
         function renderWorldClock() {
             const timezones = [
                 { name: 'Praha', tz: 'Europe/Prague' },
@@ -1550,51 +1350,41 @@
                 { name: 'Venezuela', tz: 'America/Caracas' },
                 { name: 'Nový Zéland', tz: 'Pacific/Auckland' }
             ];
-            // Use the .app-header h1 CSS rule for consistent title spacing
-            let content = `<div class="app-header"><h1 class="text-white">Světový čas</h1></div><div class="divide-y divide-gray-700">`;
+            let listItemsHtml = "";
             const now = new Date();
-
             timezones.forEach(city => {
                 const cityTime = new Date(now.toLocaleString('en-US', { timeZone: city.tz }));
                 const pragueTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Prague' }));
-                
                 let dayDiffText = "Dnes";
-                if (cityTime.getDate() > pragueTime.getDate() || (cityTime.getDate() === 1 && pragueTime.getDate() > 25)) {
-                    dayDiffText = "Zítra";
-                } else if (cityTime.getDate() < pragueTime.getDate() || (pragueTime.getDate() === 1 && cityTime.getDate() > 25)) {
-                    dayDiffText = "Včera";
-                }
-                
+                if (cityTime.getDate() > pragueTime.getDate() || (cityTime.getDate() === 1 && pragueTime.getDate() > 25)) dayDiffText = "Zítra";
+                else if (cityTime.getDate() < pragueTime.getDate() || (pragueTime.getDate() === 1 && cityTime.getDate() > 25)) dayDiffText = "Včera";
                 const pragueUTCHours = pragueTime.getUTCHours();
                 const cityUTCHours = cityTime.getUTCHours();
                 let hourDiff = cityUTCHours - pragueUTCHours;
                 if (cityTime.getUTCDate() > pragueTime.getUTCDate()) hourDiff += 24;
                 if (cityTime.getUTCDate() < pragueTime.getUTCDate()) hourDiff -= 24;
-
-                content += `
+                listItemsHtml += `
                     <div class="list-item">
                         <div>
                             <div class="text-sm text-gray-400">${dayDiffText}, ${hourDiff >= 0 ? '+' : ''}${hourDiff} hod.</div>
                             <div class="text-xl text-white">${city.name}</div>
                         </div>
                         <div class="text-3xl font-light text-white">${cityTime.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}</div>
-                    </div>
-                `;
+                    </div>`;
             });
-            content += `</div>`;
-            appMainContent.innerHTML = content;
+            appMainContentForClock.innerHTML = `
+                <div class="clock-app-view-header"><h1>Světový čas</h1></div>
+                <div class="clock-app-scrollable-content divide-y divide-gray-700">${listItemsHtml}</div>`;
         }
 
-
+        // Funkce pro vykreslení Budíků
         function renderAlarms() {
             let headerControls = `
-                <button id="edit-alarms-btn" class="text-orange-500 text-lg">${isEditingAlarms ? 'Hotovo' : 'Upravit'}</button>
-                <h1 class="text-2xl font-semibold text-center flex-grow -ml-10 text-white">Budíky</h1>
-                <button id="add-alarm-btn" class="text-orange-500 text-3xl font-light">+</button>
-            `;
-
-            let listHtml = alarms.map(alarm => `
-                <div class="list-item ${isEditingAlarms ? 'editing' : ''}" data-id="${alarm.id}">
+                <button id="edit-alarms-btn">${isEditingClockAlarms ? 'Hotovo' : 'Upravit'}</button>
+                <h1>Budíky</h1>
+                <button id="add-alarm-btn" class="add-alarm-btn-style">+</button>`;
+            let listHtml = clockAlarms.map(alarm => `
+                <div class="list-item ${isEditingClockAlarms ? 'editing' : ''}" data-id="${alarm.id}">
                     <button class="delete-button" data-id="${alarm.id}">-</button>
                     <div class="flex-grow">
                         <div class="flex justify-between items-start">
@@ -1610,66 +1400,39 @@
                             </label>
                         </div>
                     </div>
-                </div>
-            `).join('');
-
-            // pt-16 provides top padding for the header controls area, below status bar
-            appMainContent.innerHTML = `
-                <div class="app-header flex justify-between items-center px-4 pt-16"> 
-                    ${headerControls}
-                </div>
-                <div class="divide-y divide-gray-700 mt-4">
-                    ${listHtml}
-                </div>
-            `;
-
+                </div>`).join('');
+            appMainContentForClock.innerHTML = `
+                <div class="alarms-header">${headerControls}</div>
+                <div class="clock-app-scrollable-content divide-y divide-gray-700 mt-0">${listHtml}</div>`; // mt-0 protože hlavička má vlastní spacing
+            
             document.getElementById('edit-alarms-btn').addEventListener('click', toggleEditAlarms);
-            document.getElementById('add-alarm-btn').addEventListener('click', addAlarm);
-            appMainContent.querySelectorAll('.toggle-switch input').forEach(toggle => {
-                toggle.addEventListener('change', (e) => toggleAlarm(e.target.dataset.id, e.target.checked));
+            document.getElementById('add-alarm-btn').addEventListener('click', addClockAlarm);
+            appMainContentForClock.querySelectorAll('.toggle-switch input').forEach(toggle => {
+                toggle.addEventListener('change', (e) => toggleClockAlarm(e.target.dataset.id, e.target.checked));
             });
-            appMainContent.querySelectorAll('.delete-button').forEach(button => {
-                button.addEventListener('click', (e) => deleteAlarm(e.target.dataset.id));
+            appMainContentForClock.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', (e) => deleteClockAlarm(e.target.dataset.id));
             });
         }
-
-        function toggleEditAlarms() {
-            isEditingAlarms = !isEditingAlarms;
-            renderAlarms();
-        }
-
-        function addAlarm() {
+        function toggleEditAlarms() { isEditingClockAlarms = !isEditingClockAlarms; renderAlarms(); }
+        function addClockAlarm() {
             const newId = Date.now();
             const newAlarmTime = new Date().toLocaleTimeString('cs-CZ', {hour: '2-digit', minute: '2-digit'});
-            alarms.unshift({ 
-                id: newId, 
-                time: newAlarmTime, 
-                label: "Nový budík", 
-                repeat: "Nikdy", 
-                enabled: true,
-                days: [] 
-            });
-            if (isEditingAlarms) isEditingAlarms = false;
+            clockAlarms.unshift({ id: newId, time: newAlarmTime, label: "Nový budík", repeat: "Nikdy", enabled: true, days: [] });
+            if (isEditingClockAlarms) isEditingClockAlarms = false;
             renderAlarms();
         }
-
-        function toggleAlarm(alarmId, isEnabled) {
-            const alarm = alarms.find(a => a.id == alarmId);
+        function toggleClockAlarm(alarmId, isEnabled) {
+            const alarm = clockAlarms.find(a => a.id == alarmId);
             if (alarm) {
                 alarm.enabled = isEnabled;
-                const textContentDiv = appMainContent.querySelector(`.list-item[data-id="${alarmId}"] .alarm-text-content`);
-                if (textContentDiv) {
-                     textContentDiv.classList.toggle('opacity-50', !isEnabled);
-                }
+                const textContentDiv = appMainContentForClock.querySelector(`.list-item[data-id="${alarmId}"] .alarm-text-content`);
+                if (textContentDiv) textContentDiv.classList.toggle('opacity-50', !isEnabled);
             }
         }
-        
-        function deleteAlarm(alarmId) {
-            alarms = alarms.filter(a => a.id != alarmId);
-            renderAlarms();
-        }
+        function deleteClockAlarm(alarmId) { clockAlarms = clockAlarms.filter(a => a.id != alarmId); renderAlarms(); }
 
-
+        // Funkce pro Stopky
         function formatStopwatchTime(timeInCentiseconds) {
             const cs = timeInCentiseconds % 100;
             const totalSeconds = Math.floor(timeInCentiseconds / 100);
@@ -1677,278 +1440,207 @@
             const m = Math.floor(totalSeconds / 60);
             return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')},${String(cs).padStart(2, '0')}`;
         }
-
-        function renderStopwatch() {
-            // pt-16 provides top padding for the content area, below status bar
-            appMainContent.innerHTML = `
-                <div class="app-header text-center pt-16"> </div>
-                <div class="flex flex-col items-center justify-center flex-grow px-4 pb-8">
-                    <div id="stopwatch-display" class="text-7xl font-thin tracking-tighter mb-12 text-white">
-                        ${formatStopwatchTime(stopwatchTime)}
-                    </div>
-                    <div id="stopwatch-laps" class="w-full overflow-y-auto max-h-48 mb-8 divide-y divide-gray-700">
-                        ${renderStopwatchLaps()}
-                    </div>
-                    <div class="flex justify-around w-full">
-                        <button id="stopwatch-lap-reset" class="control-button ${stopwatchRunning ? 'control-button-lap' : 'control-button-reset'}">
-                            ${stopwatchRunning ? 'Mezičas' : (stopwatchTime > 0 ? 'Vynulovat' : 'Mezičas')}
-                        </button>
-                        <button id="stopwatch-start-stop" class="control-button ${stopwatchRunning ? 'control-button-stop' : 'control-button-start'}">
-                            ${stopwatchRunning ? 'Zastavit' : 'Spustit'}
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('stopwatch-lap-reset').addEventListener('click', handleStopwatchLapReset);
-            document.getElementById('stopwatch-start-stop').addEventListener('click', handleStopwatchStartStop);
-        }
-        
         function renderStopwatchLaps() {
-            if (stopwatchLaps.length === 0 && !stopwatchRunning && stopwatchTime === 0) return '';
+            if (clockStopwatchLaps.length === 0 && !clockStopwatchRunning && clockStopwatchTime === 0) return '';
             let html = '';
-            if (stopwatchRunning && stopwatchLaps.length > 0) {
-                const lastLapTime = stopwatchLaps.reduce((sum, lap) => sum + lap.time, 0); // This was sum + lap.time, should be sum + lap.actualTime for correct current lap display if laps store split times
-                // Correct calculation for current lap time: stopwatchTime - time of the start of this lap (which is sum of all previous laps' actualTime)
-                const sumOfPreviousLapsActualTime = stopwatchLaps.length > 0 ? stopwatchLaps[stopwatchLaps.length-1].actualTime : 0;
-                const currentLapTimeDisplay = stopwatchTime - sumOfPreviousLapsActualTime;
-
+            if (clockStopwatchRunning) { // Zobraz aktuální kolo pouze pokud stopky běží
+                 const sumOfPreviousLapsActualTime = clockStopwatchLaps.length > 0 ? clockStopwatchLaps[clockStopwatchLaps.length-1].actualTime : 0;
+                 const currentLapTimeDisplay = clockStopwatchTime - sumOfPreviousLapsActualTime;
                  html += `<div class="lap-item">
-                            <span class="lap-number">Kolo ${stopwatchLaps.length + 1}</span>
+                            <span class="lap-number">Kolo ${clockStopwatchLaps.length + 1}</span>
                             <span class="text-white">${formatStopwatchTime(currentLapTimeDisplay)}</span>
                           </div>`;
-            } else if (stopwatchRunning && stopwatchLaps.length === 0 && stopwatchTime > 0) {
-                 html += `<div class="lap-item">
-                            <span class="lap-number">Kolo 1</span>
-                            <span class="text-white">${formatStopwatchTime(stopwatchTime)}</span>
-                          </div>`;
             }
-
-            for (let i = stopwatchLaps.length - 1; i >= 0; i--) {
+            for (let i = clockStopwatchLaps.length - 1; i >= 0; i--) {
                 html += `
                     <div class="lap-item">
-                        <span class="lap-number">Kolo ${stopwatchLaps[i].lapNumber}</span>
-                        <span class="text-white">${formatStopwatchTime(stopwatchLaps[i].time)}</span>
+                        <span class="lap-number">Kolo ${clockStopwatchLaps[i].lapNumber}</span>
+                        <span class="text-white">${formatStopwatchTime(clockStopwatchLaps[i].time)}</span>
                     </div>`;
             }
             return html;
         }
-
         function updateStopwatchDisplay() {
             if (document.getElementById('stopwatch-display')) {
-                document.getElementById('stopwatch-display').textContent = formatStopwatchTime(stopwatchTime);
+                document.getElementById('stopwatch-display').textContent = formatStopwatchTime(clockStopwatchTime);
             }
-            if (document.getElementById('stopwatch-laps')) {
-                if (stopwatchRunning) {
-                    document.getElementById('stopwatch-laps').innerHTML = renderStopwatchLaps();
+            if (document.getElementById('stopwatch-laps-list')) { // Cílení na nový ID pro seznam kol
+                 if (clockStopwatchRunning) { // Aktualizuj pouze pokud běží, aby se zobrazoval aktuální čas kola
+                    document.getElementById('stopwatch-laps-list').innerHTML = renderStopwatchLaps();
                 }
             }
         }
-
+        function renderStopwatch() {
+            appMainContentForClock.innerHTML = `
+                <div class="clock-app-view-header" style="height: 100px;"></div> <div class="flex flex-col items-center justify-between flex-grow px-4 pb-8">
+                    <div id="stopwatch-display" class="stopwatch-timer-display">
+                        ${formatStopwatchTime(clockStopwatchTime)}
+                    </div>
+                    <div id="stopwatch-laps-list" class="w-full clock-app-scrollable-content max-h-48 mb-auto divide-y divide-gray-700">
+                        ${renderStopwatchLaps()}
+                    </div>
+                    <div class="stopwatch-timer-controls">
+                        <button id="stopwatch-lap-reset-btn" class="control-button ${clockStopwatchRunning ? 'control-button-lap' : 'control-button-reset'}">
+                            ${clockStopwatchRunning ? 'Mezičas' : (clockStopwatchTime > 0 ? 'Vynulovat' : 'Mezičas')}
+                        </button>
+                        <button id="stopwatch-start-stop-btn" class="control-button ${clockStopwatchRunning ? 'control-button-stop' : 'control-button-start'}">
+                            ${clockStopwatchRunning ? 'Zastavit' : 'Spustit'}
+                        </button>
+                    </div>
+                </div>`;
+            document.getElementById('stopwatch-lap-reset-btn').addEventListener('click', handleStopwatchLapReset);
+            document.getElementById('stopwatch-start-stop-btn').addEventListener('click', handleStopwatchStartStop);
+            updateStopwatchDisplay(); // Zajistí správné zobrazení při prvním renderu
+        }
         function handleStopwatchStartStop() {
-            stopwatchRunning = !stopwatchRunning;
-            if (stopwatchRunning) {
-                clearInterval(stopwatchInterval);
-                const startTime = Date.now() - stopwatchTime * 10;
-                stopwatchInterval = setInterval(() => {
-                    stopwatchTime = Math.floor((Date.now() - startTime) / 10);
+            clockStopwatchRunning = !clockStopwatchRunning;
+            if (clockStopwatchRunning) {
+                clearInterval(clockStopwatchInterval);
+                const startTime = Date.now() - clockStopwatchTime * 10;
+                clockStopwatchInterval = setInterval(() => {
+                    clockStopwatchTime = Math.floor((Date.now() - startTime) / 10);
                     updateStopwatchDisplay();
                 }, 10);
             } else {
-                clearInterval(stopwatchInterval);
+                clearInterval(clockStopwatchInterval);
             }
             renderStopwatch(); 
-            updateStopwatchDisplay();
         }
-
         function handleStopwatchLapReset() {
-            if (stopwatchRunning) { // Lap
-                const sumOfPreviousLapsActualTime = stopwatchLaps.length > 0 ? stopwatchLaps[stopwatchLaps.length-1].actualTime : 0;
-                const currentLapDuration = stopwatchTime - sumOfPreviousLapsActualTime;
-                stopwatchLaps.push({ lapNumber: stopwatchLaps.length + 1, time: currentLapDuration, actualTime: stopwatchTime });
-                document.getElementById('stopwatch-laps').innerHTML = renderStopwatchLaps();
-            } else { // Reset
-                stopwatchTime = 0;
-                stopwatchLaps = [];
-                stopwatchRunning = false;
-                clearInterval(stopwatchInterval);
+            if (clockStopwatchRunning) {
+                const sumOfPreviousLapsActualTime = clockStopwatchLaps.length > 0 ? clockStopwatchLaps[clockStopwatchLaps.length-1].actualTime : 0;
+                const currentLapDuration = clockStopwatchTime - sumOfPreviousLapsActualTime;
+                clockStopwatchLaps.push({ lapNumber: clockStopwatchLaps.length + 1, time: currentLapDuration, actualTime: clockStopwatchTime });
+                document.getElementById('stopwatch-laps-list').innerHTML = renderStopwatchLaps(); // Aktualizuj seznam kol
+            } else {
+                clockStopwatchTime = 0;
+                clockStopwatchLaps = [];
+                clockStopwatchRunning = false;
+                clearInterval(clockStopwatchInterval);
                 renderStopwatch(); 
             }
-            updateStopwatchDisplay();
         }
 
-
-        function renderTimer() {
-            const hours = Array.from({ length: 24 }, (_, i) => i);
-            const minutesOrSeconds = Array.from({ length: 60 }, (_, i) => i);
-            // pt-16 provides top padding for the content area, below status bar
-            appMainContent.innerHTML = `
-                <div class="app-header text-center pt-16"> </div>
-                <div class="flex flex-col items-center justify-around flex-grow px-4 pb-8">
-                    ${timerRunning || timerRemainingSeconds > 0 ? `
-                        <div id="timer-countdown-display" class="text-7xl font-thin tracking-tighter mb-12 text-white">
-                            ${formatTimerCountdown(timerRemainingSeconds)}
-                        </div>
-                    ` : `
-                        <div class="timer-picker-container my-8">
-                            <div class="timer-selection-indicator"></div>
-                            <div id="timer-hours-picker" class="timer-picker-column">
-                                ${hours.map(h => `<div class="timer-picker-item" data-value="${h}">${String(h).padStart(2, '0')}</div>`).join('')}
-                            </div>
-                            <div class="text-3xl mx-1 self-center pb-1 text-white">:</div>
-                            <div id="timer-minutes-picker" class="timer-picker-column">
-                                ${minutesOrSeconds.map(m => `<div class="timer-picker-item" data-value="${m}">${String(m).padStart(2, '0')}</div>`).join('')}
-                            </div>
-                            <div class="text-3xl mx-1 self-center pb-1 text-white">:</div>
-                            <div id="timer-seconds-picker" class="timer-picker-column">
-                                ${minutesOrSeconds.map(s => `<div class="timer-picker-item" data-value="${s}">${String(s).padStart(2, '0')}</div>`).join('')}
-                            </div>
-                        </div>
-                    `}
-                    <div class="flex justify-around w-full mt-auto" style="transform: translateY(-30px);">
-                        <button id="timer-cancel-btn" class="control-button control-button-cancel ${ (timerRunning || timerRemainingSeconds > 0) ? '' : 'opacity-50 cursor-not-allowed'}" ${ (timerRunning || timerRemainingSeconds > 0) ? '' : 'disabled'}>
-                            Zrušit
-                        </button>
-                        <button id="timer-start-pause-btn" class="control-button ${timerRunning ? 'control-button-pause' : 'control-button-start'}">
-                            ${timerRunning ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8"><path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 01.75-.75H9a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75H7.5a.75.75 0 01-.75-.75V5.25zm7.5 0a.75.75 0 01.75-.75h1.5a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75h-1.5a.75.75 0 01-.75-.75V5.25z" clip-rule="evenodd" /></svg>' : 'Spustit'}
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            if (!timerRunning && timerRemainingSeconds === 0) {
-                setupTimerPickers();
-            }
-
-            document.getElementById('timer-cancel-btn').addEventListener('click', handleTimerCancel);
-            document.getElementById('timer-start-pause-btn').addEventListener('click', handleTimerStartPause);
-        }
-        
-        function setupTimerPickers() {
-            timerPickers.hours = document.getElementById('timer-hours-picker');
-            timerPickers.minutes = document.getElementById('timer-minutes-picker');
-            timerPickers.seconds = document.getElementById('timer-seconds-picker');
-
-            [timerPickers.hours, timerPickers.minutes, timerPickers.seconds].forEach(picker => {
-                if (picker) {
-                    picker.scrollTop = 0; 
-                    updatePickerSelection(picker); 
-                    picker.addEventListener('scroll', () => updatePickerSelection(picker));
-                }
-            });
-        }
-
-        function updatePickerSelection(pickerElement) {
-            if (!pickerElement) return;
-            const itemHeight = 40; 
-            const selectedIndex = Math.round(pickerElement.scrollTop / itemHeight);
-            
-            pickerElement.querySelectorAll('.timer-picker-item').forEach((item, index) => {
-                item.classList.toggle('selected', index === selectedIndex);
-            });
-        }
-        
-        function getPickerValue(pickerElement) {
-            if (!pickerElement) return 0;
-            const itemHeight = 40;
-            const selectedIndex = Math.round(pickerElement.scrollTop / itemHeight);
-            const selectedItem = pickerElement.children[selectedIndex];
-            return selectedItem ? parseInt(selectedItem.dataset.value) : 0;
-        }
-
+        // Funkce pro Minutku
         function formatTimerCountdown(totalSeconds) {
             const h = Math.floor(totalSeconds / 3600);
             const m = Math.floor((totalSeconds % 3600) / 60);
             const s = totalSeconds % 60;
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
-
         function updateTimerCountdownDisplay() {
             const display = document.getElementById('timer-countdown-display');
-            if (display) {
-                display.textContent = formatTimerCountdown(timerRemainingSeconds);
-            }
+            if (display) display.textContent = formatTimerCountdown(clockTimerRemainingSeconds);
         }
-
-        function handleTimerStartPause() {
-            if (timerRunning) { 
-                timerRunning = false;
-                clearInterval(timerInterval);
-            } else { 
-                if (timerRemainingSeconds === 0) { 
-                    const hours = getPickerValue(timerPickers.hours);
-                    const minutes = getPickerValue(timerPickers.minutes);
-                    const seconds = getPickerValue(timerPickers.seconds);
-                    timerTotalSeconds = (hours * 3600) + (minutes * 60) + seconds;
-                    if (timerTotalSeconds === 0) return; 
-                    timerRemainingSeconds = timerTotalSeconds;
+        function renderTimer() {
+            const hours = Array.from({ length: 24 }, (_, i) => i);
+            const minutesOrSeconds = Array.from({ length: 60 }, (_, i) => i);
+            appMainContentForClock.innerHTML = `
+                <div class="clock-app-view-header" style="height: 60px;"></div> <div class="flex flex-col items-center justify-between flex-grow px-4 pb-8">
+                    ${clockTimerRunning || clockTimerRemainingSeconds > 0 ? `
+                        <div id="timer-countdown-display" class="stopwatch-timer-display">
+                            ${formatTimerCountdown(clockTimerRemainingSeconds)}
+                        </div>` : `
+                        <div class="timer-picker-container my-auto">
+                            <div class="timer-selection-indicator"></div>
+                            <div id="timer-hours-picker" class="timer-picker-column">${hours.map(h => `<div class="timer-picker-item" data-value="${h}">${String(h).padStart(2, '0')}</div>`).join('')}</div>
+                            <div class="text-3xl mx-1 self-center pb-1 text-white">:</div>
+                            <div id="timer-minutes-picker" class="timer-picker-column">${minutesOrSeconds.map(m => `<div class="timer-picker-item" data-value="${m}">${String(m).padStart(2, '0')}</div>`).join('')}</div>
+                            <div class="text-3xl mx-1 self-center pb-1 text-white">:</div>
+                            <div id="timer-seconds-picker" class="timer-picker-column">${minutesOrSeconds.map(s => `<div class="timer-picker-item" data-value="${s}">${String(s).padStart(2, '0')}</div>`).join('')}</div>
+                        </div>`}
+                    <div class="stopwatch-timer-controls" id="timer-controls-wrapper">
+                        <button id="timer-cancel-btn" class="control-button control-button-cancel ${(clockTimerRunning || clockTimerRemainingSeconds > 0) ? '' : 'opacity-50 cursor-not-allowed'}" ${(clockTimerRunning || clockTimerRemainingSeconds > 0) ? '' : 'disabled'}>Zrušit</button>
+                        <button id="timer-start-pause-btn" class="control-button ${clockTimerRunning ? 'control-button-pause' : 'control-button-start'}">
+                            ${clockTimerRunning ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8"><path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 01.75-.75H9a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75H7.5a.75.75 0 01-.75-.75V5.25zm7.5 0a.75.75 0 01.75-.75h1.5a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75h-1.5a.75.75 0 01-.75-.75V5.25z" clip-rule="evenodd" /></svg>' : 'Spustit'}
+                        </button>
+                    </div>
+                </div>`;
+            if (!clockTimerRunning && clockTimerRemainingSeconds === 0) setupClockTimerPickers();
+            document.getElementById('timer-cancel-btn').addEventListener('click', handleTimerCancel);
+            document.getElementById('timer-start-pause-btn').addEventListener('click', handleTimerStartPause);
+            if (clockTimerRunning || clockTimerRemainingSeconds > 0) updateTimerCountdownDisplay();
+        }
+        function setupClockTimerPickers() {
+            clockTimerPickers.hours = document.getElementById('timer-hours-picker');
+            clockTimerPickers.minutes = document.getElementById('timer-minutes-picker');
+            clockTimerPickers.seconds = document.getElementById('timer-seconds-picker');
+            [clockTimerPickers.hours, clockTimerPickers.minutes, clockTimerPickers.seconds].forEach(picker => {
+                if (picker) {
+                    picker.scrollTop = 0; 
+                    updateClockPickerSelection(picker); 
+                    picker.addEventListener('scroll', () => updateClockPickerSelection(picker));
                 }
-                timerRunning = true;
-                timerInterval = setInterval(() => {
-                    timerRemainingSeconds--;
-                    if (timerRemainingSeconds < 0) {
-                        clearInterval(timerInterval);
-                        timerRunning = false;
-                        timerRemainingSeconds = 0;
-                        // Simple alert, replace with a nicer modal if desired
+            });
+        }
+        function updateClockPickerSelection(pickerElement) {
+            if (!pickerElement) return;
+            const itemHeight = 40; 
+            const selectedIndex = Math.round(pickerElement.scrollTop / itemHeight);
+            pickerElement.querySelectorAll('.timer-picker-item').forEach((item, index) => item.classList.toggle('selected', index === selectedIndex));
+        }
+        function getClockPickerValue(pickerElement) {
+            if (!pickerElement) return 0;
+            const itemHeight = 40;
+            const selectedIndex = Math.round(pickerElement.scrollTop / itemHeight);
+            const selectedItem = pickerElement.children[selectedIndex];
+            return selectedItem ? parseInt(selectedItem.dataset.value) : 0;
+        }
+        function handleTimerStartPause() {
+            if (clockTimerRunning) { 
+                clockTimerRunning = false; clearInterval(clockTimerInterval);
+            } else { 
+                if (clockTimerRemainingSeconds === 0) { 
+                    const hours = getClockPickerValue(clockTimerPickers.hours);
+                    const minutes = getClockPickerValue(clockTimerPickers.minutes);
+                    const seconds = getClockPickerValue(clockTimerPickers.seconds);
+                    clockTimerTotalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+                    if (clockTimerTotalSeconds === 0) return; 
+                    clockTimerRemainingSeconds = clockTimerTotalSeconds;
+                }
+                clockTimerRunning = true;
+                clockTimerInterval = setInterval(() => {
+                    clockTimerRemainingSeconds--;
+                    if (clockTimerRemainingSeconds < 0) {
+                        clearInterval(clockTimerInterval); clockTimerRunning = false; clockTimerRemainingSeconds = 0;
                         const alertDiv = document.createElement('div');
                         alertDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #333; color: white; padding: 20px; border-radius: 10px; z-index: 200; box-shadow: 0 0 15px rgba(0,0,0,0.5); text-align: center;';
                         alertDiv.innerHTML = 'Minutka dokončena!<br><button id="timer-alert-ok" style="background-color: #ff9500; color: white; padding: 8px 15px; border-radius: 5px; border: none; margin-top: 15px; cursor: pointer;">OK</button>';
                         document.body.appendChild(alertDiv);
-                        document.getElementById('timer-alert-ok').onclick = () => {
-                            alertDiv.remove();
-                            renderTimer(); // Re-render to show pickers again
-                        };
+                        document.getElementById('timer-alert-ok').onclick = () => { alertDiv.remove(); renderTimer(); };
                     }
-                    if (document.getElementById('timer-countdown-display')) {
-                        updateTimerCountdownDisplay();
-                    } else { 
-                        renderTimer();
-                        updateTimerCountdownDisplay();
-                    }
-                     if (timerRemainingSeconds <= 0 && !document.querySelector('div[style*="position: fixed"]')) { // Check if alert is not already shown
-                         renderTimer(); 
-                     }
+                    if (document.getElementById('timer-countdown-display')) updateTimerCountdownDisplay();
+                    else { renderTimer(); updateTimerCountdownDisplay(); }
+                    if (clockTimerRemainingSeconds <= 0 && !document.querySelector('div[style*="position: fixed"]')) renderTimer(); 
                 }, 1000);
             }
             renderTimer(); 
-            if (timerRunning || timerRemainingSeconds > 0) updateTimerCountdownDisplay();
         }
-
         function handleTimerCancel() {
-            clearInterval(timerInterval);
-            timerRunning = false;
-            timerTotalSeconds = 0;
-            timerRemainingSeconds = 0;
+            clearInterval(clockTimerInterval); clockTimerRunning = false;
+            clockTimerTotalSeconds = 0; clockTimerRemainingSeconds = 0;
             renderTimer();
         }
 
-
+        // Přepínání tabů v aplikaci Hodiny
         function switchTab(tabName) {
-            tabButtons.forEach(button => {
-                button.classList.toggle('active', button.dataset.tab === tabName);
-            });
-
-            isEditingAlarms = false; 
-
-            if (tabName === 'world-clock') {
-                renderWorldClock();
-            } else if (tabName === 'alarms') {
-                renderAlarms();
-            } else if (tabName === 'stopwatch') {
-                renderStopwatch();
-                updateStopwatchDisplay(); 
-            } else if (tabName === 'timer') {
-                renderTimer();
-                 if (timerRunning || timerRemainingSeconds > 0) updateTimerCountdownDisplay();
-            }
+            clockTabButtons.forEach(button => button.classList.toggle('active', button.dataset.tab === tabName));
+            isEditingClockAlarms = false; // Reset edit módu při přepnutí tabu
+            if (tabName === 'world-clock') renderWorldClock();
+            else if (tabName === 'alarms') renderAlarms();
+            else if (tabName === 'stopwatch') renderStopwatch();
+            else if (tabName === 'timer') renderTimer();
         }
+        clockTabButtons.forEach(button => button.addEventListener('click', () => switchTab(button.dataset.tab)));
+        // --- KONEC KÓDU PRO APLIKACI HODINY ---
 
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => switchTab(button.dataset.tab));
-        });
-
-        // Initial tab
-        switchTab('world-clock');
+        // Inicializace simulátoru
+        populateAppGrid(mainApps, 'main-app-grid');
+        populateAppGrid(dockApps, 'dock-app-grid');
+        addHomeIndicatorListenersForAppScreens(); 
+        showScreen(lockScreen); 
+        setInterval(updateDateTime, 1000); 
+        updateDateTime(); // Prvotní nastavení času
     </script>
 </body>
 </html>
