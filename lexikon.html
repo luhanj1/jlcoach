@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lexikon férového businessu</title>
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                background-color: #333333;
+                font-family: 'Lora', serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                overflow: hidden; 
+            }
+
+            #presentation-container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .book {
+                width: 90vw; 
+                height: 70vh; 
+                max-width: 1200px; 
+                max-height: 800px; 
+                position: relative;
+                perspective: 1500px; 
+                transition: transform 0.5s ease-in-out;
+            }
+
+            .page-leaf {
+                width: 50%; 
+                height: 100%;
+                position: absolute;
+                top: 0;
+                right: 0; 
+                transform-origin: left center; 
+                transform-style: preserve-3d;
+                transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1.000); 
+                box-shadow: 4px 2px 8px #00000033; 
+            }
+
+            .page-leaf.flipped {
+                transform: rotateY(-180deg);
+                box-shadow: -4px 2px 8px #00000040; 
+            }
+
+            .page { 
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                backface-visibility: hidden; 
+                display: flex;
+                flex-direction: column;
+                padding: 25px 35px; 
+                box-sizing: border-box;
+                background: #fdf5e6; 
+                border: 1px solid #d1c0a8; 
+                overflow-y: auto; 
+                color: #4e342e; 
+            }
+            
+            .page.front-face { 
+                background: 
+                    linear-gradient(to right, #00000005 0%, transparent 10%, transparent 90%, #00000005 100%),
+                    #fdf5e6;
+            }
+
+            .page.back-face { 
+                transform: rotateY(180deg); 
+                background:
+                    linear-gradient(to left, #00000005 0%, transparent 10%, transparent 90%, #00000005 100%),
+                    #fdf5e6;
+            }
+            
+            .page::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .page::-webkit-scrollbar-track {
+                background: #fdf5e6;
+            }
+
+            .page::-webkit-scrollbar-thumb {
+                background: #c0a080;
+                border-radius: 4px;
+            }
+
+            #leaf-cover .page.front-face {
+                background: linear-gradient(135deg, #402a1c 0%, #5a3f2e 30%, #6b4f3a 50%, #5a3f2e 70%, #402a1c 100%);
+                border-top: 8px ridge #301f16;
+                border-bottom: 8px ridge #301f16;
+                border-left: 12px ridge #301f16;
+                border-right: 6px ridge #301f16;
+                box-shadow: inset 0 0 20px #00000099, 
+                            0 0 0 3px #daa520, 
+                            0 0 0 7px #301f16, 
+                            6px 6px 15px #00000066; 
+                font-family: 'Cinzel Decorative', cursive;
+                text-align: center;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #leaf-cover .page.front-face::before {
+                content: '';
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background-image: linear-gradient(45deg, #00000005 25%, transparent 25%, transparent 50%, #00000005 50%, #00000005 75%, transparent 75%, transparent 100%),
+                                  linear-gradient(-45deg, #00000003 25%, transparent 25%, transparent 50%, #00000003 50%, #00000003 75%, transparent 75%, transparent 100%);
+                background-size: 40px 40px;
+                opacity: 0.4;
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            #leaf-cover .page.front-face h1 {
+                font-size: clamp(2em, 7vw, 4.2em); 
+                margin: 0;
+                padding: 15px; 
+                font-weight: 700;
+                color: #e0c9a6; 
+                text-shadow: 1px 1px 0px #2a1a13,  
+                             3px 3px 5px #000000b3, 
+                             0 0 15px #00000080; 
+                position: relative; 
+            }
+
+            .ornament {
+                position: absolute;
+                width: 22px; 
+                height: 22px;
+                background: radial-gradient(ellipse at center, #ffd700 20%, #f0c040 50%, #b8860b 100%); 
+                border-radius: 50%;
+            }
+
+            #leaf-cover .page.back-face {
+                background-color: #efebe9; 
+                color: #efebe9;
+                font-family: 'Cinzel Decorative', cursive;
+                text-align: center;
+            }
+
+            #leaf-cover .page.back-face h2 {
+                font-size: clamp(1.8em, 5vw, 3.5em);
+                margin: 0;
+                color: #3e2723; 
+                font-weight: 700;
+                text-shadow: none; 
+            }
+
+            .page.under-turning-page-shadow {
+                box-shadow: inset 8px 0px 15px -5px #00000040;
+                transition: box-shadow 0.8s ease-in-out;
+            }
+
+            #leaf-back-cover .back-face { 
+                background-color: #5d4037;
+                border: 3px solid #3e2723;
+            }
+
+            #leaf-back-cover .front-face { 
+                background-color: #efebe9;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+
+            #leaf-back-cover .front-face p {
+                font-style: italic;
+            }
+
+            #leaf-cover .page-footer-text {
+                color: #3e2723;
+                font-size: clamp(0.8em, 2vw, 1em); 
+                margin-top: auto;
+                padding-bottom: 10px;
+                text-align: left;
+            }
+
+            .page-subtitle {
+                font-family: 'Lora', serif;
+                font-style: italic;
+                font-size: clamp(0.8em, 2vw, 1.0em);
+                color: #7a5c57;
+                margin-bottom: 5px;
+                margin-top: 0;
+                width: 100%; 
+            }
+
+            .page.back-face .page-subtitle {
+                 text-align: left;
+            }
+
+            .page.front-face .page-subtitle {
+                 text-align: left;
+            }
+
+            #leaf1 .page.front-face .page-main-title {
+                 font-family: 'Cinzel Decorative', cursive;
+                 font-size: clamp(2em, 6vw, 3.8em);
+                 margin-bottom: 5px;
+                 margin-top: 0;
+                 color: #3e2723;
+                 font-weight: 700;
+            }
+
+            #leaf1 .page.front-face .page-main-subtitle {
+                font-size: clamp(1em, 3vw, 1.5em); 
+                font-style: italic; 
+                margin-top: 0;
+                margin-bottom: auto;
+                color: #5d4037;
+            }
+
+            #leaf1 .page.front-face .page-footer-text {
+                font-size: clamp(0.8em, 2vw, 1em); 
+                margin-top: auto;
+                padding-bottom: 10px;
+                text-align: right;
+            }
+
+            .page h3 {
+                font-family: 'Cinzel Decorative', cursive;
+                font-size: clamp(1.5em, 4vw, 2.2em);
+                margin-top: 5px;
+                margin-bottom: 15px;
+                color: #5d4037;
+                text-align: center;
+                width: 100%;
+            }
+
+            .page p {
+                font-size: clamp(0.9em, 2.2vh, 1.1em);
+                line-height: 1.7;
+                text-align: justify;
+                margin-bottom: 1em;
+            }
+
+            .page strong {
+                font-weight: 600;
+                color: #3e2723;
+            }
+
+            .page ul {
+                padding-left: 20px;
+                text-align: left;
+            }
+
+            .page li {
+                 margin-bottom: 0.5em;
+            }
+
+            .lastpage-footer-text {
+                margin-top: auto;
+                padding-bottom: 10px;
+                text-align: left;
+            }
+
+            #presentation-container:fullscreen .book {
+                width: 100vw;
+                height: 100vh;
+                max-width: none;
+                max-height: none;
+                margin:0;
+            }
+
+            #presentation-container:fullscreen .page {
+                padding: 40px 50px; 
+            }
+
+            #presentation-container:fullscreen #leaf-cover .page.front-face {
+                padding: 50px; 
+            }
+
+            .controls-hint {
+                position: fixed;
+                bottom: 15px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #000000b3;
+                color: #ffffff;
+                padding: 8px 15px;
+                border-radius: 5px;
+                font-size: 0.9em;
+                z-index: 10000; 
+                opacity: 1;
+                transition: opacity 0.5s ease-in-out 2s; 
+            }
+
+            .controls-hint.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="presentation-container">
+            <div class="book">
+                <div id="leaf-cover" class="page-leaf">
+                    <div class="page front-face">
+                        <span class="ornament" style="top: 25px; left: 25px;"></span>
+                        <span class="ornament" style="top: 25px; right: 25px;"></span>
+                        <h1>Lexikon</h1>
+                        <span class="ornament" style="bottom: 25px; left: 25px;"></span>
+                        <span class="ornament" style="bottom: 25px; right: 25px;"></span>
+                    </div>
+                    <div class="page back-face">
+                        <h2>Lexikon<br><span style="font-size:20px">férového businessu</span></h2>
+                        <p class="page-footer-text">porada MEC<br>02. 06. 2025</p>
+                    </div>
+                </div>
+                <div id="leaf1" class="page-leaf">
+                    <div class="page front-face">
+                        <p class="page-subtitle"></p>
+                        <h3>Obsah</h3>
+                        <table>
+                            <tr>
+                                <td style="text-align:center">Kapitola</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center">I:</td>
+                                <td>Zneužití kompenzačního nástroje a vytváření<br>chyb</td>
+                                <td>Domča</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center">II:</td>
+                                <td>Nedodržování pravidel autorizace a dokladů</td>
+                                <td>Kubík</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center">III:</td>
+                                <td>Obcházení nastavených procesů a pracovních postupů</td>
+                                <td>Kubík</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center">IV:</td>
+                                <td>Downgrade</td>
+                                <td>Domča</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center">V:</td>
+                                <td>Zdroje</td>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <p class="page-footer-text">
+                            <img src="https://i.ibb.co/CsJc0ySC/relikviesmrti.png" alt="relikvie smrti" width="100px">
+                        </p>
+                    </div>
+                    <div class="page back-face">
+                        <p class="page-subtitle">Dopady zneužití znalostí a interních nástrojů</p>
+                        <h3>Kapitola II: Nedodržování pravidel autorizace a dokladů</h3>
+                        <p><u>Co to například znamená?</u></p>
+                        <ul style="margin-left:20px">
+                            <li>chybějící nebo chybná autorizace zákazníka</li>
+                            <li>chybějící dokumentace (Smlouva / Podpis / Scan dokladu)</li>
+                            <li>smlouvy podepsané bez přítomnosti majitele smluv</li>
+                            <li>tarifní změny provedené bez vědomí zákazníka jakkoliv</li>
+                        </ul>
+                        <br><br>
+                        <p><u>Co to způsobuje?</u></p>
+                        <ul style="margin-left:20px">
+                            <li>snižování spokojenosti a zrátu důvěry zákazníka a generování dalších stížnosti</li>
+                            <li>čas mnoha lidí při kontrolách a narovnání stavů</li>
+                            <li>náklady pro TMCZ</li>
+                            <li>nemožnost vymáhat plnění smluv a závazků od zákazníka</li>
+                            <li>vyplácení jiných provozí prodejcům, než ve skutečnosti mají</li>
+                            <li>hrozby neplatnosti chybě vytvořených smluv</li>
+                            <li>riziko soudního sporu se zákazníky</li>
+                            <li>vysoké pokuty pro TMCZ za chybné nakládání s ID zákazníků</li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="leaf2" class="page-leaf">
+                    <div class="page front-face">
+                        <p class="page-subtitle">Dopady zneužití znalostí a interních nástrojů</p>
+                        <p><u>Jak na to?</u></p>
+                        <ul style="margin-left:20px">
+                            <li>
+                                <h2>
+                                    <span style="font-size:20px">Jak to děláš ty?</span>
+                                </h2>
+                            </li>
+                        </ul>
+                        <br><br>
+                        <p><u>Následky</u></p>
+                        <p>
+                            <img src="https://i.ibb.co/sJvLjYGJ/autorizacenasledky.png" alt="nasledky" style="width:100%">
+                        </p>
+                    </div>
+                    <div class="page back-face">
+                        <p class="page-subtitle">Dopady zneužití znalostí a interních nástrojů</p>
+                        <h3>Kapitola III: Obcházení nastavených procesů a pracovních postupů</h3>
+                        <p><u>Co to například znamená?</u></p>
+                        <ul style="margin-left:20px">
+                            <li>zneužití prodeje zvýhodněného HW</li>
+                            <li>nepravdivé informace od prodejce</li>
+                            <li>obcházení rotačního churnu</li>
+                            <li>nedodržování nastavených procesů (např.: výpovědi, stížnosti, aj.)</li>
+                            <li>chybějící hotovost v pokladně</li>
+                        </ul>
+                        <br><br>
+                        <p><u>Co to způsobuje?</u></p>
+                        <ul style="margin-left:20px">
+                            <li>velmi často je poškozen zákazník, následující reklamace, ukončení smluv nebo jsou řešené stížnosti</li>
+                            <li>poškozené dobré jméno společnosti</li>
+                            <li>neoprávněné obohacení se prodejcem na úkor zákazníka</li>
+                            <li>neoprávněné obohacení se prodejcem na úkor T-Mobile</li>
+                            <li>vyplácení jiných provizí prodejcům</li>
+                            <li>snižování spokojenosti, ztráta důvěry zákazníka a generování dalších stížností</li>
+                            <li>riziko soudního sporu se zákazníky a vysokých pokut pro TMCZ za znaužití zákaznických dat</li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="leaf3" class="page-leaf">
+                    <div class="page front-face">
+                        <p class="page-subtitle">Dopady zneužití znalostí a interních nástrojů</p>
+                        <p><u>Jak na to?</u></p>
+                        <ul style="margin-left:20px">
+                            <li>
+                                <h2>
+                                    <span style="font-size:20px">Jak to děláš ty?</span>
+                                </h2>
+                            </li>
+                        </ul>
+                        <br><br>
+                        <p><u>Následky</u></p>
+                        <p>
+                            <img src="https://i.ibb.co/WvjNjFMD/procesynasledky.png" alt="nasledky" style="width:100%">
+                        </p>
+                    </div>
+                    <div class="page back-face">
+                        <p class="page-subtitle">Dopady zneužití znalostí a interních nástrojů</p>
+                        <h3>Kapitola V: Zdroje</h3>
+                        <ul style="margin-left:20px">
+                            <li><b>znalostní báze</b> - autorizace, akviziční a neveřejné nabídky, stížnosti a výpovědi</li>
+                            <li><b>maja</b> - <u>kultura</u> - frontline kodex, pravidla prodejce, standarty prodejen</li>
+                            <li><b>kreditník ZP</b></li>
+                            <li><b>směrnice 54.04_I_03_CZ</b></li>
+                        </ul>
+                        <p class="lastpage-footer-text">
+                            <img src="https://i.ibb.co/7dxJY9rp/fraud.png" alt="fraud" style="width:100px">
+                        </p>
+                    </div>
+                </div>
+                <div id="leaf-back-cover" class="page-leaf">
+                    <div class="page front-face">
+                        <span style="font-size:20px">
+                            <p>Konec Lexikonu.<br>Děkujeme za vaši pozornost.</p>
+                        </span>
+                    </div>
+                    <div class="page back-face"></div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const book = document.querySelector('.book');
+                const leaves = Array.from(book.querySelectorAll('.page-leaf'));
+                const presentationContainer = document.getElementById('presentation-container');
+                const controlsHint = document.querySelector('.controls-hint');
+
+                const N = leaves.length;
+                let currentPageIndex = 0;
+
+                leaves.forEach((leaf, index) => {
+                    leaf.style.zIndex = N - index;
+                });
+
+                function goNextPage() {
+                    if (currentPageIndex < N - 1) { 
+                        const turningLeaf = leaves[currentPageIndex];
+                        const pageUnderneath = (currentPageIndex + 1 < N) ? leaves[currentPageIndex + 1].querySelector('.front-face') : null;
+
+                        if (pageUnderneath) {
+                            pageUnderneath.classList.add('under-turning-page-shadow');
+                        }
+
+                        turningLeaf.classList.add('flipped');
+                        turningLeaf.style.zIndex = currentPageIndex + N;
+
+                        turningLeaf.addEventListener('transitionend', () => {
+                            if (pageUnderneath) {
+                                pageUnderneath.classList.remove('under-turning-page-shadow');
+                            }
+ 
+                            turningLeaf.style.zIndex = currentPageIndex + 1; 
+                        }, { once: true });
+
+                        currentPageIndex++;
+                    }
+                }
+
+                function goPreviousPage() {
+                    if (currentPageIndex > 0) {
+                        currentPageIndex--; 
+                        const turningLeaf = leaves[currentPageIndex];                        
+
+                        const pageUnderneath = (currentPageIndex > 0) ? leaves[currentPageIndex -1].querySelector('.back-face') : null;
+
+                        turningLeaf.classList.remove('flipped');
+
+                        turningLeaf.style.zIndex = N - currentPageIndex;
+
+                    }
+                }
+
+                function toggleFullScreen() {
+                    if (!document.fullscreenElement) {
+                        presentationContainer.requestFullscreen().catch(err => {
+                            console.error(`Chyba při pokusu o celoobrazovkový režim: ${err.message} (${err.name})`);
+                        });
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                    }
+                }
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'ArrowRight') {
+                        goNextPage();
+                    } else if (event.key === 'ArrowLeft') {
+                        goPreviousPage();
+                    } else if (event.key === 'f' || event.key === 'F') {
+                        toggleFullScreen();
+                    }
+                });
+
+                setTimeout(() => {
+                    if(controlsHint) controlsHint.classList.add('hidden');
+                }, 5000); 
+
+                if(controlsHint) {
+                    controlsHint.addEventListener('transitionend', () => {
+                        if (controlsHint.classList.contains('hidden')) {
+                            controlsHint.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>
